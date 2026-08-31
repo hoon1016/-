@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#b85a36" />
+    <title>StudyBet</title>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="app-frame">
+        <aside class="sidebar">
+          <div class="brand-lockup">
+            <p class="eyebrow">Camera Study Accountability</p>
+            <h1>StudyBet</h1>
+            <p class="sidebar-copy">
+              친구끼리 목표를 정하고, 공부 기록과 소셜 패널티를 함께 관리하는 캠스터디 앱
+            </p>
+          </div>
+
+          <section class="sidebar-hero">
+            <p class="sidebar-hero-label">Today</p>
+            <strong>친구랑 같이 붙잡아주는 집중 루틴</strong>
+            <span>가벼운 내기와 실시간 캠스터디를 한 흐름으로 묶었습니다.</span>
+          </section>
+
+          <nav class="sidebar-nav" id="navTabs">
+            <button class="nav-chip active" data-screen="dashboard" type="button">대시보드</button>
+            <button class="nav-chip" data-screen="room" type="button">스터디룸</button>
+            <button class="nav-chip" data-screen="penalties" type="button">패널티 보드</button>
+            <button class="nav-chip" data-screen="history" type="button">기록</button>
+          </nav>
+
+          <section class="sidebar-card">
+            <p class="sidebar-label">현재 그룹</p>
+            <strong id="sidebarGroupName">토익 아침캠 6주 챌린지</strong>
+            <span id="sidebarInviteCode">초대코드 STB-2401</span>
+          </section>
+
+          <section class="sidebar-card">
+            <p class="sidebar-label">오늘 상태</p>
+            <strong id="heroPenalty">아직 정산 전</strong>
+            <span id="heroPenaltyHint">세션을 마감하면 자동으로 결과가 반영됩니다.</span>
+          </section>
+
+          <section class="sidebar-card install-card">
+            <p class="sidebar-label">앱처럼 쓰기</p>
+            <span>브라우저에서 홈 화면 추가 또는 설치를 지원하는 구조입니다.</span>
+            <button id="installAppBtn" class="ghost stretch" type="button">설치 안내 보기</button>
+          </section>
+        </aside>
+
+        <main class="content">
+          <header class="topbar">
+            <div class="topbar-copy">
+              <p class="topbar-label">Prototype App</p>
+              <h2 id="screenTitle">대시보드</h2>
+              <p class="topbar-subtitle">친구형 캠스터디를 실제 앱처럼 정리한 인터랙티브 화면</p>
+            </div>
+            <div class="topbar-badges">
+              <span class="top-badge" id="sessionStatusBadge">대기 중</span>
+              <span class="top-badge soft" id="cameraStatusBadge">카메라 OFF</span>
+            </div>
+          </header>
+
+          <section class="screen active" data-screen="dashboard">
+            <section class="welcome-panel">
+              <div class="welcome-copy">
+                <p class="welcome-label">YPT + Selog Mode</p>
+                <h3>공부시간은 열품타처럼, 존재감은 셀로그처럼</h3>
+                <p>
+                  오늘 공부량과 그룹 순위는 바로 보이고, 카메라를 켜둔 집중 장면은 셀로그처럼 남는 구조로 잡았습니다.
+                </p>
+              </div>
+              <div class="welcome-orb">
+                <span>STUDY</span>
+                <strong id="focusPercent">0%</strong>
+                <small>goal hit</small>
+              </div>
+            </section>
+
+            <section class="focus-board">
+              <article class="focus-hero">
+                <p class="focus-label">오늘 공부시간</p>
+                <strong id="focusTime">00:00</strong>
+                <div class="focus-progress">
+                  <div class="focus-progress-bar" id="focusProgressBar"></div>
+                </div>
+                <div class="focus-meta">
+                  <span>목표 <strong id="goalSummary">120분</strong></span>
+                  <span>이탈 <strong id="awayTime">00:00</strong></span>
+                </div>
+                <div class="button-row">
+                  <button id="goRoomBtn" type="button">집중 시작</button>
+                </div>
+              </article>
+
+              <article class="selog-card">
+                <div class="selog-head">
+                  <div>
+                    <p class="focus-label">셀로그 체크인</p>
+                    <strong>오늘의 집중 장면</strong>
+                  </div>
+                  <span class="selog-live">CAM ON</span>
+                </div>
+                <div class="selog-preview">
+                  <div class="selog-ring"></div>
+                  <div class="selog-copy">
+                    <strong id="cameraPresenceText">카메라를 켜고 시작해보세요</strong>
+                    <span>같이 켜두는 공부 루틴이 이 방의 핵심입니다.</span>
+                  </div>
+                </div>
+                <div class="selog-tags">
+                  <span>#공부인증</span>
+                  <span>#같이집중</span>
+                  <span>#친구압박</span>
+                </div>
+              </article>
+            </section>
+
+            <div class="summary-strip">
+              <article class="summary-card accent">
+                <span>주간 순위</span>
+                <strong id="rankSummary">4위</strong>
+              </article>
+              <article class="summary-card">
+                <span>오늘 목표까지</span>
+                <strong id="remainingSummary">120분</strong>
+              </article>
+              <article class="summary-card">
+                <span>연속 달성</span>
+                <strong id="streakSummary">3일</strong>
+              </article>
+              <article class="summary-card">
+                <span>이번 주 패널티</span>
+                <strong id="penaltyCountSummary">1건</strong>
+              </article>
+            </div>
+
+            <div class="dashboard-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <p>오늘 규칙</p>
+                  <h3>자동 정산 룰</h3>
+                </div>
+                <div class="rule-preview" id="rulePreview"></div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <p>오늘 리포트</p>
+                  <h3>집중 피드</h3>
+                </div>
+                <div class="mini-feed" id="weeklySummary"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="room">
+            <div class="layout">
+              <section class="panel live-panel">
+                <div class="section-title">
+                  <p>실시간 캠스터디</p>
+                  <h3>열품타식 타이머 + 셀로그식 화면</h3>
+                </div>
+
+                <div class="live-grid">
+                  <div class="camera-card">
+                    <div class="camera-topline">
+                      <span class="camera-badge live">LIVE ROOM</span>
+                      <span class="camera-badge subtle">Front Camera</span>
+                    </div>
+                    <video id="cameraPreview" autoplay muted playsinline></video>
+                    <div class="camera-overlay" id="cameraOverlay">카메라를 켜면 내 화면이 여기 표시됩니다</div>
+                    <div class="camera-footer">
+                      <div>
+                        <p>Focus Stage</p>
+                        <strong>조용히 켜두고 함께 달리는 세션</strong>
+                      </div>
+                      <span>StudyBet Cam</span>
+                    </div>
+                  </div>
+
+                  <div class="session-card">
+                    <div class="card-head">
+                      <div>
+                        <p class="mini-label">실시간 상태</p>
+                        <strong id="sessionStatus">대기 중</strong>
+                      </div>
+                      <span class="status-dot" id="cameraStatus">OFF</span>
+                    </div>
+
+                    <div class="metric-grid">
+                      <div class="metric-tile">
+                        <span>오늘 공부</span>
+                        <strong id="focusTimePanel">00:00</strong>
+                      </div>
+                      <div class="metric-tile">
+                        <span>자리비움</span>
+                        <strong id="awayTimePanel">00:00</strong>
+                      </div>
+                    </div>
+
+                    <div class="button-row stack-mobile">
+                      <button id="startCameraBtn" type="button">카메라 켜기</button>
+                      <button id="startSessionBtn" class="secondary" type="button">공부 시작</button>
+                      <button id="toggleAwayBtn" class="ghost" type="button">잠깐 자리비움</button>
+                      <button id="endSessionBtn" class="danger" type="button">세션 마감</button>
+                    </div>
+
+                    <p class="note">
+                      현재 버전은 카메라 상태, 브라우저 화면 이탈, 수동 자리비움 입력을 기준으로 기록합니다.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel settings-panel">
+                <div class="section-title">
+                  <p>운영 설정</p>
+                  <h3>그룹 규칙</h3>
+                </div>
+
+                <form id="settingsForm" class="settings-grid">
+                  <label>
+                    스터디 이름
+                    <input id="groupName" name="groupName" type="text" value="토익 아침캠 6주 챌린지" />
+                  </label>
+
+                  <label>
+                    목표 공부시간
+                    <input id="goalMinutes" name="goalMinutes" type="number" min="10" value="120" />
+                  </label>
+
+                  <label>
+                    허용 이탈시간
+                    <input id="awayLimit" name="awayLimit" type="number" min="1" value="15" />
+                  </label>
+
+                  <label>
+                    초대 코드
+                    <input id="inviteCode" name="inviteCode" type="text" value="STB-2401" />
+                  </label>
+
+                  <label>
+                    목표 미달 시
+                    <input id="goalPenalty" name="goalPenalty" type="text" value="아메리카노 사기" />
+                  </label>
+
+                  <label>
+                    이탈 초과 시
+                    <input id="awayPenalty" name="awayPenalty" type="text" value="편의점 간식 사기" />
+                  </label>
+
+                  <label>
+                    세션 꼴찌 시
+                    <input id="lastPlacePenalty" name="lastPlacePenalty" type="text" value="다음 모임 디저트 쏘기" />
+                  </label>
+                </form>
+
+                <div class="button-row">
+                  <button id="saveSettingsBtn" class="secondary" type="button">설정 반영</button>
+                  <button id="copyInviteBtn" class="ghost" type="button">초대코드 복사</button>
+                  <button id="resetDemoBtn" class="ghost" type="button">데이터 초기화</button>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="penalties">
+            <div class="bottom-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <p>친구 현황</p>
+                  <h3>리더보드</h3>
+                </div>
+                <div class="leaderboard-header">
+                  <div>참가자</div>
+                  <div>집중</div>
+                  <div>이탈</div>
+                  <div>상태</div>
+                </div>
+                <div id="leaderboard" class="leaderboard"></div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <p>자동 정산</p>
+                  <h3>결과 카드</h3>
+                </div>
+                <div id="resultState" class="result-state">
+                  세션을 마감하면 자동으로 결과 카드가 생성됩니다.
+                </div>
+                <div id="resultCards" class="result-cards"></div>
+              </section>
+            </div>
+
+            <section class="panel">
+              <div class="section-title">
+                <p>패널티 보드</p>
+                <h3>이번 주 누가 무엇을 사는지</h3>
+              </div>
+              <div id="penaltyBoard" class="penalty-board"></div>
+            </section>
+          </section>
+
+          <section class="screen" data-screen="history">
+            <div class="bottom-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <p>기록 캘린더</p>
+                  <h3>하루별 공부 영상</h3>
+                </div>
+                <div class="calendar-head">
+                  <button id="prevMonthBtn" class="ghost" type="button">이전 달</button>
+                  <strong id="calendarMonthLabel">2026년 8월</strong>
+                  <button id="nextMonthBtn" class="ghost" type="button">다음 달</button>
+                </div>
+                <div class="calendar-weekdays">
+                  <span>일</span>
+                  <span>월</span>
+                  <span>화</span>
+                  <span>수</span>
+                  <span>목</span>
+                  <span>금</span>
+                  <span>토</span>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <p>선택한 날짜</p>
+                  <h3>영상 기록</h3>
+                </div>
+                <div id="recordingEmpty" class="result-state">
+                  날짜를 누르면 그날의 공부 기록과 영상이 여기에 보입니다.
+                </div>
+                <div id="recordingList" class="recording-list"></div>
+              </section>
+            </div>
+
+            <div class="bottom-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <p>최근 세션</p>
+                  <h3>기록 요약</h3>
+                </div>
+                <div id="historyList" class="history-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <p>친구별 추이</p>
+                  <h3>주간 성과</h3>
+                </div>
+                <div id="memberStats" class="member-stats"></div>
+              </section>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <nav class="mobile-dock" id="mobileDock">
+        <button class="dock-item active" data-screen="dashboard" type="button">대시보드</button>
+        <button class="dock-item" data-screen="room" type="button">룸</button>
+        <button class="dock-item" data-screen="penalties" type="button">패널티</button>
+        <button class="dock-item" data-screen="history" type="button">기록</button>
+      </nav>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

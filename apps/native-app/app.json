@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "StudyBet",
+    "slug": "studybet-native-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.studybet.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "캠스터디 참여와 하루 공부 기록 영상을 위해 카메라 접근이 필요합니다.",
+        "NSMicrophoneUsageDescription": "공부 세션 영상 기록에 필요한 오디오 수집을 위해 마이크 접근이 필요합니다."
+      }
+    },
+    "android": {
+      "package": "com.studybet.app",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
+    }
+  }
+}

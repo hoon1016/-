@@ -1,0 +1,17 @@
+{
+  "name": "StudyBet",
+  "short_name": "StudyBet",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4efe7",
+  "theme_color": "#b85a36",
+  "description": "친구형 캠스터디와 소셜 패널티를 위한 프로토타입 앱",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

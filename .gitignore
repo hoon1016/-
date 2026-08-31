@@ -1,0 +1,10 @@
+node_modules/
+.expo/
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.log
+coverage/
+apps/native-app/.env
+apps/native-app/.env.local
