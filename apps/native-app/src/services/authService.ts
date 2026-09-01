@@ -1,10 +1,12 @@
 import { supabase } from "../lib/supabase";
+import * as Linking from "expo-linking";
 
 export const authService = {
   async sendMagicLink(email: string) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: "studybet://auth/callback" },
+      // Expo Go uses its own exp:// URL during development; installed builds use studybet://.
+      options: { emailRedirectTo: Linking.createURL("auth/callback") },
     });
     if (error) throw error;
   },
