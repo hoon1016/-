@@ -1,7 +1,22 @@
 import { supabase } from "../lib/supabase";
 import { RecordingClipRow } from "../types/supabase";
+import { File } from "expo-file-system";
 
 export const recordingRepository = {
+  async uploadClip(input: { userId: string; localUri: string }) {
+    const extension = input.localUri.split(".").pop()?.split("?")[0] || "mp4";
+    const fileId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    const storagePath = `${input.userId}/${fileId}.${extension}`;
+    const bytes = await new File(input.localUri).arrayBuffer();
+    const { error } = await supabase.storage.from("study-clips").upload(storagePath, bytes, {
+      contentType: "video/mp4",
+      upsert: false,
+    });
+
+    if (error) throw error;
+    return storagePath;
+  },
+
   async createClip(input: {
     sessionId: string;
     userId: string;

@@ -21,6 +21,8 @@ export function StudyRoomScreen({
   const [, requestMicrophonePermission] = useMicrophonePermissions();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingStatus, setRecordingStatus] = useState("대기");
+  const recordingStartedAt = useRef<number | null>(null);
+  const recordingTask = useRef<Promise<void> | null>(null);
 
   const ensurePermissions = async () => {
     const camera = cameraPermission?.granted ? cameraPermission : await requestCameraPermission();
@@ -40,28 +42,32 @@ export function StudyRoomScreen({
     return true;
   };
 
-  const startRecording = async () => {
+  const startRecording = () => {
     if (!cameraRef.current || isRecording || !sessionControls.canRecord) return;
-    try {
+    recordingTask.current = (async () => {
       setIsRecording(true);
+      recordingStartedAt.current = Date.now();
       setRecordingStatus("녹화 중");
-      const result = await cameraRef.current.recordAsync({
-        maxDuration: 300,
-      });
-      if (result?.uri) {
-        sessionControls.attachRecordedClip(result.uri);
+      try {
+        const result = await cameraRef.current?.recordAsync({ maxDuration: 300 });
+        if (result?.uri) {
+          const durationSeconds = Math.max(1, Math.round((Date.now() - (recordingStartedAt.current ?? Date.now())) / 1000));
+          sessionControls.attachRecordedClip(result.uri, durationSeconds);
+          setRecordingStatus("영상 업로드 대기");
+        }
+      } catch {
+        setRecordingStatus("녹화 실패");
+      } finally {
+        recordingStartedAt.current = null;
+        setIsRecording(false);
+        recordingTask.current = null;
       }
-    } catch {
-      setRecordingStatus("녹화 실패");
-    } finally {
-      setIsRecording(false);
-    }
+    })();
   };
 
   const stopRecording = () => {
     cameraRef.current?.stopRecording();
-    setIsRecording(false);
-    setRecordingStatus("녹화 완료");
+    setRecordingStatus("녹화 마무리 중");
   };
 
   const handleStudyStart = async () => {
@@ -76,9 +82,14 @@ export function StudyRoomScreen({
   };
 
   const handleStudyEnd = async () => {
-    if (isRecording) stopRecording();
+    const hadRecording = isRecording;
+    if (hadRecording) {
+      stopRecording();
+      await recordingTask.current;
+    }
     try {
       await sessionControls.endSession();
+      setRecordingStatus(hadRecording ? "영상 저장 완료" : "세션 정산 완료");
     } catch (error) {
       setRecordingStatus(errorText(error, "세션 정산에 실패했습니다."));
     }

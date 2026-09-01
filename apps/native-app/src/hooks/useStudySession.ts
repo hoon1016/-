@@ -3,6 +3,7 @@ import { AppState, SessionResult } from "../types/domain";
 import { penaltyService } from "../services/penaltyService";
 import { runtimeConfig } from "../config/runtime";
 import { sessionRepository } from "../repositories/sessionRepository";
+import { recordingService } from "../services/recordingService";
 
 const sessionStatus = (isAway: boolean) => ({
   status: isAway ? "자리비움" : "집중 중",
@@ -21,7 +22,7 @@ export type SessionControls = {
   endSession: () => Promise<void>;
   toggleAway: () => void;
   markCameraReady: (ready: boolean) => void;
-  attachRecordedClip: (uri: string) => void;
+  attachRecordedClip: (uri: string, durationSeconds: number) => void;
 };
 
 export function useStudySession(initialState: AppState, groupId?: string, currentUserId?: string) {
@@ -29,7 +30,7 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
   const [isRunning, setIsRunning] = useState(false);
   const [isAway, setIsAway] = useState(false);
   const [canRecord, setCanRecord] = useState(false);
-  const latestClipUri = useRef<string | null>(null);
+  const latestClip = useRef<{ uri: string; durationSeconds: number } | null>(null);
   const activeSessionId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -83,15 +84,24 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
       awayLimitMinutes: 20,
     });
     let serverPenaltyCount = localAssignments.length;
-    if (!runtimeConfig.useMockData && activeSessionId.current) {
+    const sessionId = activeSessionId.current;
+    if (!runtimeConfig.useMockData && sessionId) {
       const settlement = await sessionRepository.finishMySession({
-        sessionId: activeSessionId.current,
+        sessionId,
         focusSeconds: current.focusMinutes * 60,
         awaySeconds: current.awayMinutes * 60,
         cameraOnRate: canRecord ? 100 : 0,
       });
       serverPenaltyCount = settlement.penalty_count;
       activeSessionId.current = null;
+    }
+    if (!runtimeConfig.useMockData && latestClip.current && sessionId && currentUserId) {
+      await recordingService.saveClip({
+        sessionId,
+        userId: currentUserId,
+        localUri: latestClip.current.uri,
+        durationSeconds: latestClip.current.durationSeconds,
+      });
     }
     const results: SessionResult[] = serverPenaltyCount
       ? localAssignments.map((assignment) => ({
@@ -122,7 +132,7 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
         },
         ...previous.history,
       ],
-      recordings: latestClipUri.current
+      recordings: latestClip.current
         ? [
             { date: today, count: 1, title: "오늘 캠스터디 기록", summary: `${previous.focusMinutes}분 집중 · 영상 저장됨` },
             ...previous.recordings.filter((recording) => recording.date !== today),
@@ -142,7 +152,9 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
     }));
   };
 
-  const attachRecordedClip = (uri: string) => { latestClipUri.current = uri; };
+  const attachRecordedClip = (uri: string, durationSeconds: number) => {
+    latestClip.current = { uri, durationSeconds };
+  };
 
   return {
     appState,
