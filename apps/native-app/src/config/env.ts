@@ -4,4 +4,5 @@ export const env = {
   supabaseAnonKey:
     process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "YOUR_SUPABASE_PUBLISHABLE_KEY",
   livekitUrl: process.env.EXPO_PUBLIC_LIVEKIT_URL ?? "wss://YOUR_PROJECT.livekit.cloud",
+  googleLoginEnabled: process.env.EXPO_PUBLIC_GOOGLE_LOGIN_ENABLED === "true",
 };

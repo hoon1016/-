@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { authService } from "../services/authService";
+import { env } from "../config/env";
 
 type LoginMethod = "signin" | "signup" | "google";
 
@@ -60,6 +61,10 @@ export function LoginScreen() {
   };
 
   const signInWithGoogle = async () => {
+    if (!env.googleLoginEnabled) {
+      setMessage("Google 로그인은 연결 설정 중입니다. 이메일 회원가입 또는 로그인을 이용해 주세요.");
+      return;
+    }
     setIsSending(true);
     try {
       await authService.signInWithGoogle();
@@ -102,11 +107,11 @@ export function LoginScreen() {
             <View style={styles.formArea}>
               <Text style={styles.formTitle}>계정 하나로 시작하세요</Text>
               <Text style={styles.formCopy}>Google 계정으로 StudyBet의 기록을 안전하게 이어갈 수 있어요.</Text>
-              <Pressable style={[styles.googleButton, isSending && styles.disabled]} onPress={signInWithGoogle} disabled={isSending}>
+              <Pressable style={[styles.googleButton, (!env.googleLoginEnabled || isSending) && styles.disabled]} onPress={signInWithGoogle} disabled={!env.googleLoginEnabled || isSending}>
                 <View style={styles.googleBadge}><Text style={styles.googleMark}>G</Text></View>
-                <Text style={styles.googleText}>{isSending ? "Google 연결 중" : "Google로 계속하기"}</Text>
+                <Text style={styles.googleText}>{isSending ? "Google 연결 중" : env.googleLoginEnabled ? "Google로 계속하기" : "Google 로그인 준비 중"}</Text>
               </Pressable>
-              <Text style={styles.helpText}>Google 로그인은 공급자 연결 후 바로 사용할 수 있어요.</Text>
+              <Text style={styles.helpText}>Google Cloud와 Supabase 연결을 마치면 바로 사용할 수 있어요.</Text>
             </View>
           ) : (
             <View style={styles.formArea}>
