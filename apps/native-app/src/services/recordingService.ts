@@ -24,6 +24,7 @@ export const recordingService = {
       userId: input.userId,
       recordedDate: clip.recorded_date,
       localUri: input.localUri,
+      storagePath,
       durationSeconds: clip.duration_seconds,
     };
   },

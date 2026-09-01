@@ -95,8 +95,9 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
       serverPenaltyCount = settlement.penalty_count;
       activeSessionId.current = null;
     }
+    let savedClip: Awaited<ReturnType<typeof recordingService.saveClip>> | null = null;
     if (!runtimeConfig.useMockData && latestClip.current && sessionId && currentUserId) {
-      await recordingService.saveClip({
+      savedClip = await recordingService.saveClip({
         sessionId,
         userId: currentUserId,
         localUri: latestClip.current.uri,
@@ -134,7 +135,18 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
       ],
       recordings: latestClip.current
         ? [
-            { date: today, count: 1, title: "오늘 캠스터디 기록", summary: `${previous.focusMinutes}분 집중 · 영상 저장됨` },
+            {
+              date: today,
+              count: 1,
+              clips: [{
+                id: savedClip?.id ?? `local-${Date.now()}`,
+                date: today,
+                title: "오늘 캠스터디 기록",
+                summary: `${previous.focusMinutes}분 집중 · 영상 저장됨`,
+                storagePath: savedClip?.storagePath,
+                durationSeconds: latestClip.current.durationSeconds,
+              }],
+            },
             ...previous.recordings.filter((recording) => recording.date !== today),
           ]
         : previous.recordings,

@@ -1,4 +1,4 @@
-import { AppState, FeedItem, Friend, HistoryItem, PenaltyItem, RecordingDay } from "../types/domain";
+import { AppState, FeedItem, Friend, HistoryItem, PenaltyItem, RecordingClip, RecordingDay } from "../types/domain";
 import { GroupMemberRow, PenaltyAssignmentRow, RecordingClipRow, SessionParticipantRow, StudyGroupRow } from "../types/supabase";
 
 export function toFriend(member: GroupMemberRow, participant?: SessionParticipantRow): Friend {
@@ -27,13 +27,28 @@ export function toHistoryItem(group: StudyGroupRow, participant: SessionParticip
   };
 }
 
-export function toRecordingDay(row: RecordingClipRow): RecordingDay {
+export function toRecordingClip(row: RecordingClipRow): RecordingClip {
   return {
+    id: row.id,
     date: row.recorded_date,
-    count: 1,
     title: row.title,
     summary: `${Math.round(row.duration_seconds / 60)}분 길이`,
+    storagePath: row.storage_path ?? undefined,
+    durationSeconds: row.duration_seconds,
   };
+}
+
+export function toRecordingDays(rows: RecordingClipRow[]): RecordingDay[] {
+  return rows.reduce<RecordingDay[]>((days, row) => {
+    const clip = toRecordingClip(row);
+    const day = days.find((item) => item.date === clip.date);
+    if (day) {
+      day.clips.push(clip);
+      day.count = day.clips.length;
+      return days;
+    }
+    return [...days, { date: clip.date, count: 1, clips: [clip] }];
+  }, []);
 }
 
 export function toFeed(goalMinutes: number, focusMinutes: number, cameraOn: boolean): FeedItem[] {
@@ -87,7 +102,7 @@ export function mergeToAppState(input: {
     penaltyBoard: input.penalties.map(toPenaltyItem),
     feed: toFeed(input.group.daily_goal_minutes, me?.focusMinutes ?? 0, false),
     history: input.participants.map((participant) => toHistoryItem(input.group, participant)),
-    recordings: input.recordings.map(toRecordingDay),
+    recordings: toRecordingDays(input.recordings),
     lastSessionResults: [],
   };
 }

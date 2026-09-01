@@ -42,6 +42,12 @@ export const recordingRepository = {
     return data;
   },
 
+  async createPlaybackUrl(storagePath: string) {
+    const { data, error } = await supabase.storage.from("study-clips").createSignedUrl(storagePath, 60 * 60);
+    if (error) throw error;
+    return data.signedUrl;
+  },
+
   async listByMonth(userId: string, monthPrefix: string): Promise<RecordingClipRow[]> {
     const { data, error } = await supabase
       .from("recording_clips")

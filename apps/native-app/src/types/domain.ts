@@ -13,8 +13,16 @@ export type Friend = {
 export type RecordingDay = {
   date: string;
   count: number;
+  clips: RecordingClip[];
+};
+
+export type RecordingClip = {
+  id: string;
+  date: string;
   title?: string;
   summary?: string;
+  storagePath?: string;
+  durationSeconds?: number;
 };
 
 export type FeedItem = {

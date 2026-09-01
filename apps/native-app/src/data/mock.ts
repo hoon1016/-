@@ -32,9 +32,9 @@ export const initialAppState: AppState = {
     { title: "토요일 오전 세션", meta: "71분 집중 · 이탈 패널티 1건" },
   ],
   recordings: [
-    { date: "2026-08-30", count: 2, title: "일요일 저녁 집중 세션", summary: "96분 집중 · 8분 이탈" },
-    { date: "2026-08-29", count: 1, title: "토요일 오전 세션", summary: "71분 집중 · 18분 이탈" },
-    { date: "2026-08-27", count: 1, title: "목요일 저녁 세션", summary: "124분 집중 · 목표 달성" },
+    { date: "2026-08-30", count: 2, clips: [{ id: "mock-1", date: "2026-08-30", title: "일요일 저녁 집중 세션", summary: "96분 집중 · 8분 이탈" }, { id: "mock-2", date: "2026-08-30", title: "오후 마무리 세션", summary: "42분 집중 · 영상 준비 중" }] },
+    { date: "2026-08-29", count: 1, clips: [{ id: "mock-3", date: "2026-08-29", title: "토요일 오전 세션", summary: "71분 집중 · 18분 이탈" }] },
+    { date: "2026-08-27", count: 1, clips: [{ id: "mock-4", date: "2026-08-27", title: "목요일 저녁 세션", summary: "124분 집중 · 목표 달성" }] },
   ],
   lastSessionResults: [],
 };

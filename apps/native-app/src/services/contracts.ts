@@ -29,7 +29,7 @@ export type RecordingClipDto = {
   sessionId: string;
   userId: string;
   recordedDate: string;
-  storagePath?: string;
+  storagePath: string;
   localUri?: string;
   durationSeconds: number;
 };

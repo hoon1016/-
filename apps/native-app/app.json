@@ -9,6 +9,16 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "plugins": [
+      "expo-video",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "StudyBet 영상 저장을 위해 사진첩 접근을 허용해 주세요.",
+          "savePhotosPermission": "StudyBet 영상 저장을 위해 사진첩에 추가를 허용해 주세요."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.studybet.app",
@@ -23,6 +33,9 @@
         "CAMERA",
         "RECORD_AUDIO"
       ]
-    }
+    },
+    "plugins": [
+      "expo-video"
+    ]
   }
 }
