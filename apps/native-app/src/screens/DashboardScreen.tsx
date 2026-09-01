@@ -1,13 +1,15 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
+import { Screen } from "../components/Screen";
+import { SectionLabel } from "../components/SectionLabel";
 import { colors } from "../theme/tokens";
 
 export function DashboardScreen({ appState, onStartStudy }: { appState: AppState; onStartStudy: () => void }) {
   const progress = Math.min(100, Math.round((appState.focusMinutes / appState.goalMinutes) * 100));
   return (
-    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+    <Screen>
       <LinearGradient colors={["#243646", "#31465C"]} style={styles.hero}>
         <View style={styles.heroText}>
           <Text style={styles.heroKicker}>YPT + Selog</Text>
@@ -21,7 +23,7 @@ export function DashboardScreen({ appState, onStartStudy }: { appState: AppState
       </LinearGradient>
 
       <Card>
-        <Text style={styles.sectionLabel}>오늘 공부시간</Text>
+        <SectionLabel>오늘 공부시간</SectionLabel>
         <Text style={styles.timer}>{String(Math.floor(appState.focusMinutes / 60)).padStart(2, "0")}:{String(appState.focusMinutes % 60).padStart(2, "0")}</Text>
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
@@ -42,19 +44,19 @@ export function DashboardScreen({ appState, onStartStudy }: { appState: AppState
 
       <View style={styles.grid}>
         <Card>
-          <Text style={styles.sectionLabel}>주간 순위</Text>
+          <SectionLabel>주간 순위</SectionLabel>
           <Text style={styles.statValue}>{appState.groupRank}위</Text>
           <Text style={styles.metaText}>친구 그룹 기준</Text>
         </Card>
         <Card>
-          <Text style={styles.sectionLabel}>연속 달성</Text>
+          <SectionLabel>연속 달성</SectionLabel>
           <Text style={styles.statValue}>{appState.streakDays}일</Text>
           <Text style={styles.metaText}>오늘도 이어가는 중</Text>
         </Card>
       </View>
 
       <Card>
-        <Text style={styles.sectionLabel}>집중 피드</Text>
+        <SectionLabel>집중 피드</SectionLabel>
         {appState.feed.map((item) => (
           <View key={item.title} style={styles.feedRow}>
             <Text style={styles.feedTitle}>{item.title}</Text>
@@ -62,14 +64,11 @@ export function DashboardScreen({ appState, onStartStudy }: { appState: AppState
           </View>
         ))}
       </Card>
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    gap: 14,
-  },
   hero: {
     borderRadius: 28,
     padding: 22,
@@ -115,11 +114,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: "#FFFFFF",
     fontSize: 28,
-    fontWeight: "800",
-  },
-  sectionLabel: {
-    color: colors.brandDark,
-    fontSize: 12,
     fontWeight: "800",
   },
   timer: {

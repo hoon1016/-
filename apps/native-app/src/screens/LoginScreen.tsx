@@ -3,15 +3,15 @@ import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "reac
 import { StatusBar } from "expo-status-bar";
 import { authService } from "../services/authService";
 import { env } from "../config/env";
+import { errorText } from "../lib/errors";
 
 type LoginMethod = "signin" | "signup" | "google";
 
-const errorMessage = (error: unknown, fallback: string) => {
-  if (!(error instanceof Error)) return fallback;
-  if (error.message.toLowerCase().includes("invalid login")) return "이메일 또는 비밀번호를 다시 확인해 주세요.";
-  if (error.message.toLowerCase().includes("already registered")) return "이미 가입된 이메일입니다. 로그인을 선택해 주세요.";
-  if (error.message.toLowerCase().includes("password")) return "비밀번호는 6자 이상으로 입력해 주세요.";
-  return error.message || fallback;
+const authErrorText = (error: unknown, fallback: string) => {
+  const message = errorText(error, fallback);
+  if (message.toLowerCase().includes("invalid login")) return "이메일 또는 비밀번호를 다시 확인해 주세요.";
+  if (message.toLowerCase().includes("already registered")) return "이미 가입된 이메일입니다. 로그인을 선택해 주세요.";
+  return message.toLowerCase().includes("password") ? "비밀번호는 6자 이상으로 입력해 주세요." : message;
 };
 
 export function LoginScreen() {
@@ -38,7 +38,7 @@ export function LoginScreen() {
     try {
       await authService.signInWithPassword(email.trim(), password);
     } catch (error) {
-      setMessage(errorMessage(error, "로그인에 실패했습니다."));
+      setMessage(authErrorText(error, "로그인에 실패했습니다."));
     } finally {
       setIsSending(false);
     }
@@ -54,7 +54,7 @@ export function LoginScreen() {
       const user = await authService.signUpWithPassword(email.trim(), password, nickname.trim());
       setMessage(user?.identities?.length ? "계정을 만들었어요. 이제 바로 StudyBet을 시작할 수 있어요." : "이미 가입된 이메일입니다. 로그인을 선택해 주세요.");
     } catch (error) {
-      setMessage(errorMessage(error, "회원가입에 실패했습니다."));
+      setMessage(authErrorText(error, "회원가입에 실패했습니다."));
     } finally {
       setIsSending(false);
     }
@@ -69,7 +69,7 @@ export function LoginScreen() {
     try {
       await authService.signInWithGoogle();
     } catch (error) {
-      setMessage(errorMessage(error, "Google 로그인에 실패했습니다."));
+      setMessage(authErrorText(error, "Google 로그인에 실패했습니다."));
     } finally {
       setIsSending(false);
     }

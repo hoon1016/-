@@ -1,13 +1,15 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
+import { Screen } from "../components/Screen";
+import { SectionLabel } from "../components/SectionLabel";
 import { colors } from "../theme/tokens";
 
 export function PenaltiesScreen({ appState }: { appState: AppState }) {
   return (
-    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+    <Screen>
       <Card>
-        <Text style={styles.sectionLabel}>이번 주 룰</Text>
+        <SectionLabel>이번 주 룰</SectionLabel>
         <View style={styles.ruleGrid}>
           <View style={styles.rule}>
             <Text style={styles.ruleNumber}>01</Text>
@@ -22,7 +24,7 @@ export function PenaltiesScreen({ appState }: { appState: AppState }) {
         </View>
       </Card>
       <Card>
-        <Text style={styles.sectionLabel}>리더보드</Text>
+        <SectionLabel>리더보드</SectionLabel>
         {appState.friends.map((friend, index) => (
           <View key={friend.id} style={styles.row}>
             <View>
@@ -35,7 +37,7 @@ export function PenaltiesScreen({ appState }: { appState: AppState }) {
       </Card>
 
       <Card>
-        <Text style={styles.sectionLabel}>패널티 보드</Text>
+        <SectionLabel>패널티 보드</SectionLabel>
         {appState.penaltyBoard.map((item) => (
           <View key={item.title} style={styles.penalty}>
             <Text style={styles.penaltyTitle}>{item.title}</Text>
@@ -43,19 +45,11 @@ export function PenaltiesScreen({ appState }: { appState: AppState }) {
           </View>
         ))}
       </Card>
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    gap: 14,
-  },
-  sectionLabel: {
-    color: colors.brandDark,
-    fontSize: 12,
-    fontWeight: "800",
-  },
   ruleGrid: {
     marginTop: 14,
     flexDirection: "row",

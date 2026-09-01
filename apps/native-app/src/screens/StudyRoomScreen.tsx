@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
+import { Screen } from "../components/Screen";
+import { SectionLabel } from "../components/SectionLabel";
 import { colors } from "../theme/tokens";
 import { SessionControls } from "../hooks/useStudySession";
+import { errorText } from "../lib/errors";
 
 export function StudyRoomScreen({
   appState,
@@ -68,7 +71,7 @@ export function StudyRoomScreen({
       await sessionControls.startSession();
       setRecordingStatus("세션 진행 중");
     } catch (error) {
-      setRecordingStatus(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
+      setRecordingStatus(errorText(error, "세션을 시작하지 못했습니다."));
     }
   };
 
@@ -77,12 +80,12 @@ export function StudyRoomScreen({
     try {
       await sessionControls.endSession();
     } catch (error) {
-      setRecordingStatus(error instanceof Error ? error.message : "세션 정산에 실패했습니다.");
+      setRecordingStatus(errorText(error, "세션 정산에 실패했습니다."));
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+    <Screen>
       <View style={styles.cameraStage}>
         <View style={styles.cameraHeader}>
           <Text style={styles.liveBadge}>LIVE ROOM</Text>
@@ -114,7 +117,7 @@ export function StudyRoomScreen({
       </View>
 
       <Card>
-        <Text style={styles.sectionLabel}>실시간 상태</Text>
+        <SectionLabel>실시간 상태</SectionLabel>
         <Text style={styles.statusValue}>{appState.sessionStatus}</Text>
         <View style={styles.metrics}>
           <View style={styles.metric}>
@@ -154,7 +157,7 @@ export function StudyRoomScreen({
 
       {!!appState.lastSessionResults.length && (
         <Card>
-          <Text style={styles.sectionLabel}>이번 세션 자동 정산</Text>
+          <SectionLabel>이번 세션 자동 정산</SectionLabel>
           {appState.lastSessionResults.map((result) => (
             <View key={`${result.title}-${result.body}`} style={[styles.resultRow, result.tone === "warn" ? styles.resultWarn : styles.resultGood]}>
               <Text style={styles.resultTitle}>{result.title}</Text>
@@ -163,14 +166,11 @@ export function StudyRoomScreen({
           ))}
         </Card>
       )}
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    gap: 14,
-  },
   cameraStage: {
     borderRadius: 28,
     backgroundColor: "#251D18",
@@ -243,11 +243,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
-  },
-  sectionLabel: {
-    color: colors.brandDark,
-    fontSize: 12,
-    fontWeight: "800",
   },
   statusValue: {
     marginTop: 8,

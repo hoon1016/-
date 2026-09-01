@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
+import { Screen } from "../components/Screen";
+import { SectionLabel } from "../components/SectionLabel";
 import { colors } from "../theme/tokens";
 
 export function HistoryScreen({ appState }: { appState: AppState }) {
@@ -12,11 +14,11 @@ export function HistoryScreen({ appState }: { appState: AppState }) {
     : "기록 없음";
 
   return (
-    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+    <Screen>
       <Card>
         <View style={styles.headRow}>
           <View>
-            <Text style={styles.sectionLabel}>기록 캘린더</Text>
+            <SectionLabel>기록 캘린더</SectionLabel>
             <Text style={styles.month}>{monthLabel}</Text>
           </View>
           <Text style={styles.recordedCount}>{appState.recordings.length}일 기록</Text>
@@ -32,7 +34,7 @@ export function HistoryScreen({ appState }: { appState: AppState }) {
       </Card>
 
       <Card>
-        <Text style={styles.sectionLabel}>{selectedDate || "선택한 날짜"}</Text>
+        <SectionLabel>{selectedDate || "선택한 날짜"}</SectionLabel>
         {selectedRecordings.length ? selectedRecordings.map((item) => (
           <View key={item.date} style={styles.recording}>
             <Text style={styles.recordingTitle}>{item.title}</Text>
@@ -44,19 +46,11 @@ export function HistoryScreen({ appState }: { appState: AppState }) {
           </View>
         )) : <Text style={styles.empty}>이 날짜에는 아직 남긴 영상 기록이 없어요.</Text>}
       </Card>
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    gap: 14,
-  },
-  sectionLabel: {
-    color: colors.brandDark,
-    fontSize: 12,
-    fontWeight: "800",
-  },
   headRow: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -4,6 +4,15 @@ import { penaltyService } from "../services/penaltyService";
 import { runtimeConfig } from "../config/runtime";
 import { sessionRepository } from "../repositories/sessionRepository";
 
+const sessionStatus = (isAway: boolean) => ({
+  status: isAway ? "자리비움" : "집중 중",
+  feed: {
+    title: isAway ? "자리비움 감지됨" : "오늘 공부시간 누적 중",
+    body: isAway ? "장시간 이탈 시 자동 패널티 대상이 됩니다." : "열품타처럼 공부시간이 분 단위로 누적됩니다.",
+    tone: isAway ? "warn" as const : "good" as const,
+  },
+});
+
 export type SessionControls = {
   isRunning: boolean;
   isAway: boolean;
@@ -32,21 +41,15 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
 
     const timer = setInterval(() => {
       setAppState((current) => {
+        const next = sessionStatus(isAway);
         const nextFocus = isAway ? current.focusMinutes : current.focusMinutes + 1;
         const nextAway = isAway ? current.awayMinutes + 1 : current.awayMinutes;
         return {
           ...current,
           focusMinutes: nextFocus,
           awayMinutes: nextAway,
-          sessionStatus: isAway ? "자리비움" : "집중 중",
-          feed: [
-            {
-              title: isAway ? "자리비움 감지됨" : "오늘 공부시간 누적 중",
-              body: isAway ? "장시간 이탈 시 자동 패널티 대상이 됩니다." : "열품타처럼 공부시간이 분 단위로 누적됩니다.",
-              tone: isAway ? "warn" : "good",
-            },
-            ...current.feed.slice(1),
-          ],
+          sessionStatus: next.status,
+          feed: [next.feed, ...current.feed.slice(1)],
         };
       });
     }, 60_000);
@@ -129,9 +132,7 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
     }));
   };
 
-  const toggleAway = () => {
-    setIsAway((current) => !current);
-  };
+  const toggleAway = () => setIsAway((current) => !current);
 
   const markCameraReady = (ready: boolean) => {
     setCanRecord(ready);
@@ -141,9 +142,7 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
     }));
   };
 
-  const attachRecordedClip = (uri: string) => {
-    latestClipUri.current = uri;
-  };
+  const attachRecordedClip = (uri: string) => { latestClipUri.current = uri; };
 
   return {
     appState,
