@@ -3,10 +3,15 @@ import { SessionParticipantRow, StudySessionRow } from "../types/supabase";
 
 export const sessionRepository = {
   async createLiveSession(groupId: string): Promise<StudySessionRow> {
+    const { data: userResult, error: userError } = await supabase.auth.getUser();
+    if (userError) throw userError;
+    if (!userResult.user) throw new Error("Sign in is required before starting a session.");
+
     const { data, error } = await supabase
       .from("study_sessions")
       .insert({
         group_id: groupId,
+        created_by: userResult.user.id,
         status: "live",
       })
       .select("*")
@@ -29,6 +34,23 @@ export const sessionRepository = {
 
     if (error) throw error;
     return data;
+  },
+
+  async finishMySession(input: {
+    sessionId: string;
+    focusSeconds: number;
+    awaySeconds: number;
+    cameraOnRate: number;
+  }): Promise<{ session_id: string; penalty_count: number }> {
+    const { data, error } = await supabase.rpc("finish_my_session", {
+      target_session_id: input.sessionId,
+      focus_total_seconds: input.focusSeconds,
+      away_total_seconds: input.awaySeconds,
+      camera_rate: input.cameraOnRate,
+    });
+
+    if (error) throw error;
+    return data as { session_id: string; penalty_count: number };
   },
 
   async upsertParticipant(input: {

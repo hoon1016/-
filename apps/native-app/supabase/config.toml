@@ -1,0 +1,4 @@
+project_id = "studybet"
+
+[functions.livekit-token]
+verify_jwt = true

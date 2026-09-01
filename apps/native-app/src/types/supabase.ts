@@ -22,6 +22,7 @@ export type GroupMemberRow = {
 export type StudySessionRow = {
   id: string;
   group_id: string;
+  created_by: string;
   started_at: string;
   ended_at: string | null;
   status: "scheduled" | "live" | "ended";
