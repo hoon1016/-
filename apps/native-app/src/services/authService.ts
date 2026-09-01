@@ -2,6 +2,24 @@ import { supabase } from "../lib/supabase";
 import * as Linking from "expo-linking";
 
 export const authService = {
+  async signInWithPassword(email: string, password: string) {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  },
+
+  async signUpWithPassword(email: string, password: string, nickname: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { nickname },
+        emailRedirectTo: Linking.createURL("auth/callback"),
+      },
+    });
+    if (error) throw error;
+    return data.user;
+  },
+
   async sendMagicLink(email: string) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
