@@ -9,3 +9,4 @@ Thumbs.db
 coverage/
 apps/native-app/.env
 apps/native-app/.env.local
+apps/native-app/.google-oauth.local
