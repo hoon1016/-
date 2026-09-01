@@ -64,7 +64,7 @@ export default function App() {
       <View style={styles.container}>
         <HeaderBar
           title={activeTitle}
-          subtitle="열품타 + 셀로그 기반 친구형 캠스터디"
+          subtitle={selectedGroup ? selectedGroup.name : "친구와 함께 하는 캠스터디"}
           status={appState.sessionStatus}
           camera={appState.cameraStatus}
         />

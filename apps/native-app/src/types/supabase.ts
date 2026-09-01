@@ -5,6 +5,8 @@ export type StudyGroupRow = {
   invite_code: string;
   daily_goal_minutes: number;
   away_limit_minutes: number;
+  goal_penalty_text?: string;
+  away_penalty_text?: string;
   created_at: string;
 };
 

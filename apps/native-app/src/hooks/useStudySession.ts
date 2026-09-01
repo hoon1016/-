@@ -9,7 +9,7 @@ const sessionStatus = (isAway: boolean) => ({
   status: isAway ? "자리비움" : "집중 중",
   feed: {
     title: isAway ? "자리비움 감지됨" : "오늘 공부시간 누적 중",
-    body: isAway ? "장시간 이탈 시 자동 패널티 대상이 됩니다." : "열품타처럼 공부시간이 분 단위로 누적됩니다.",
+    body: isAway ? "이탈 시간이 누적되고 있습니다." : "공부 시간이 누적되고 있습니다.",
     tone: isAway ? "warn" as const : "good" as const,
   },
 });
@@ -81,7 +81,7 @@ export function useStudySession(initialState: AppState, groupId?: string, curren
       focusMinutes: current.focusMinutes,
       awayMinutes: current.awayMinutes,
       goalMinutes: current.goalMinutes,
-      awayLimitMinutes: 20,
+      awayLimitMinutes: current.awayLimitMinutes,
     });
     let serverPenaltyCount = localAssignments.length;
     const sessionId = activeSessionId.current;

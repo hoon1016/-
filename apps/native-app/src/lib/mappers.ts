@@ -55,17 +55,12 @@ export function toFeed(goalMinutes: number, focusMinutes: number, cameraOn: bool
   return [
     {
       title: focusMinutes >= goalMinutes ? "오늘 목표 달성권" : `오늘 목표까지 ${Math.max(0, goalMinutes - focusMinutes)}분 남음`,
-      body: "열품타처럼 누적 공부시간이 즉시 반영됩니다.",
+      body: focusMinutes >= goalMinutes ? "오늘 목표를 달성했어요." : "스터디룸에서 공부를 시작해 보세요.",
       tone: focusMinutes >= goalMinutes ? "good" : "warn",
     },
     {
-      title: "그룹 순위는 실시간 업데이트 대상",
-      body: "친구 그룹 안에서 순위와 패널티가 같이 움직입니다.",
-      tone: "good",
-    },
-    {
-      title: cameraOn ? "셀로그 체크인 활성화" : "셀로그 체크인 대기",
-      body: cameraOn ? "카메라를 켜둔 공부 존재감이 기록됩니다." : "카메라를 켜면 오늘 장면과 세션 기록이 남습니다.",
+      title: cameraOn ? "카메라 체크인 활성화" : "카메라 체크인 대기",
+      body: cameraOn ? "카메라 참여가 기록되고 있습니다." : "스터디룸에서 카메라를 켤 수 있습니다.",
       tone: cameraOn ? "good" : "warn",
     },
   ];
@@ -91,9 +86,12 @@ export function mergeToAppState(input: {
     sessionStatus: "대기 중",
     cameraStatus: "카메라 OFF",
     goalMinutes: input.group.daily_goal_minutes,
+    awayLimitMinutes: input.group.away_limit_minutes,
+    goalPenaltyText: input.group.goal_penalty_text ?? "목표 미달 패널티",
+    awayPenaltyText: input.group.away_penalty_text ?? "이탈 초과 패널티",
     focusMinutes: me?.focusMinutes ?? 0,
     awayMinutes: me?.awayMinutes ?? 0,
-    groupRank: 1,
+    groupRank: friends.length > 1 ? [...friends].sort((a, b) => b.focusMinutes - a.focusMinutes).findIndex((friend) => friend.id === input.currentUserId) + 1 : 0,
     streakDays: me?.streak ?? 0,
     penaltyCount: me?.penalties ?? 0,
     groupName: input.group.name,

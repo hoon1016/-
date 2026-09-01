@@ -51,6 +51,9 @@ export type AppState = {
   sessionStatus: string;
   cameraStatus: string;
   goalMinutes: number;
+  awayLimitMinutes: number;
+  goalPenaltyText: string;
+  awayPenaltyText: string;
   focusMinutes: number;
   awayMinutes: number;
   groupRank: number;

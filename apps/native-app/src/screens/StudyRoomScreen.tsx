@@ -140,7 +140,7 @@ export function StudyRoomScreen({
         <View style={styles.cameraFooter}>
           <View>
             <Text style={styles.cameraFooterLabel}>Focus Stage</Text>
-            <Text style={styles.cameraFooterTitle}>셀로그처럼 켜두고 같이 달리는 세션</Text>
+            <Text style={styles.cameraFooterTitle}>카메라를 켜고 함께 집중하는 세션</Text>
           </View>
           <Text style={styles.cameraFooterLabel}>StudyBet Cam</Text>
         </View>

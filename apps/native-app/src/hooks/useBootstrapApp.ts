@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { initialAppState } from "../data/mock";
+import { emptyAppState, initialAppState } from "../data/mock";
 import { runtimeConfig } from "../config/runtime";
 import { bootstrapService } from "../services/bootstrapService";
 import { AppState } from "../types/domain";
 
 export function useBootstrapApp(userId?: string, groupId?: string) {
-  const [appState, setAppState] = useState<AppState>(initialAppState);
+  const [appState, setAppState] = useState<AppState>(runtimeConfig.useMockData ? initialAppState : emptyAppState);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
 

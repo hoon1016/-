@@ -41,7 +41,7 @@ export function HistoryScreen({ appState }: { appState: AppState }) {
 
   const openClip = async (clip: RecordingClip) => {
     if (!clip.storagePath) {
-      Alert.alert("재생할 영상 없음", "이 기록은 예시 데이터이거나 영상 저장 전 기록입니다.");
+      Alert.alert("재생할 영상 없음", "이 기록에는 저장된 영상이 없습니다.");
       return;
     }
     setSelectedClip(clip);
