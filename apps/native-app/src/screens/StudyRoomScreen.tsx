@@ -20,6 +20,8 @@ export function StudyRoomScreen({
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [, requestMicrophonePermission] = useMicrophonePermissions();
   const [isRecording, setIsRecording] = useState(false);
+  const [isCameraEnabled, setIsCameraEnabled] = useState(false);
+  const [facing, setFacing] = useState<"front" | "back">("front");
   const [recordingStatus, setRecordingStatus] = useState("대기");
   const recordingStartedAt = useRef<number | null>(null);
   const recordingTask = useRef<Promise<void> | null>(null);
@@ -37,9 +39,26 @@ export function StudyRoomScreen({
       setRecordingStatus("권한 필요");
       return false;
     }
+    setIsCameraEnabled(true);
     sessionControls.markCameraReady(true);
     setRecordingStatus("카메라 준비 완료");
     return true;
+  };
+
+  const toggleCamera = async () => {
+    if (isRecording) return;
+    if (isCameraEnabled) {
+      setIsCameraEnabled(false);
+      sessionControls.markCameraReady(false);
+      setRecordingStatus("카메라 꺼짐");
+      return;
+    }
+    await startCameraSession();
+  };
+
+  const switchCamera = () => {
+    if (isRecording || !isCameraEnabled) return;
+    setFacing((current) => (current === "front" ? "back" : "front"));
   };
 
   const startRecording = () => {
@@ -100,21 +119,21 @@ export function StudyRoomScreen({
       <View style={styles.cameraStage}>
         <View style={styles.cameraHeader}>
           <Text style={styles.liveBadge}>LIVE ROOM</Text>
-          <Text style={styles.subtleBadge}>Front Camera</Text>
+          <Text style={styles.subtleBadge}>{facing === "front" ? "전면 카메라" : "후면 카메라"}</Text>
         </View>
         <View style={styles.cameraPreviewWrap}>
-          {sessionControls.canRecord ? (
+          {isCameraEnabled && sessionControls.canRecord ? (
             <CameraView
               ref={cameraRef}
               style={styles.cameraPreview}
-              facing="front"
+              facing={facing}
               mode="video"
               active
             />
           ) : (
             <View style={styles.cameraPlaceholder}>
-              <Text style={styles.cameraText}>카메라 프리뷰 영역</Text>
-              <Text style={styles.cameraSubtext}>실기기에서 카메라 권한을 허용하면 바로 프리뷰가 열립니다.</Text>
+              <Text style={styles.cameraText}>카메라가 꺼져 있어요</Text>
+              <Text style={styles.cameraSubtext}>아래 카메라 켜기 버튼을 누르면 프리뷰가 열립니다.</Text>
             </View>
           )}
         </View>
@@ -124,6 +143,14 @@ export function StudyRoomScreen({
             <Text style={styles.cameraFooterTitle}>셀로그처럼 켜두고 같이 달리는 세션</Text>
           </View>
           <Text style={styles.cameraFooterLabel}>StudyBet Cam</Text>
+        </View>
+        <View style={styles.cameraControls}>
+          <Pressable style={[styles.cameraControl, isRecording && styles.cameraControlDisabled]} onPress={() => void toggleCamera()} disabled={isRecording}>
+            <Text style={styles.cameraControlLabel}>{isCameraEnabled ? "카메라 끄기" : "카메라 켜기"}</Text>
+          </Pressable>
+          <Pressable style={[styles.cameraControl, (!isCameraEnabled || isRecording) && styles.cameraControlDisabled]} onPress={switchCamera} disabled={!isCameraEnabled || isRecording}>
+            <Text style={styles.cameraControlLabel}>{facing === "front" ? "후면으로 전환" : "전면으로 전환"}</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -244,6 +271,28 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 18,
     backgroundColor: "rgba(19,25,32,0.42)",
+  },
+  cameraControls: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+  },
+  cameraControl: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  cameraControlDisabled: {
+    opacity: 0.45,
+  },
+  cameraControlLabel: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "800",
   },
   cameraFooterLabel: {
     color: "#D7E0E9",
