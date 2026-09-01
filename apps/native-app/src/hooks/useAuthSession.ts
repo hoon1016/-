@@ -14,14 +14,22 @@ export function useAuthSession(enabled: boolean) {
     }
 
     const finishMagicLink = async (url: string) => {
-      const query = url.split("?")[1] ?? "";
-      const params = new URLSearchParams(query);
+      // Supabase may return a PKCE code in the query or tokens in the URL fragment.
+      const query = url.split("?")[1]?.split("#")[0] ?? "";
+      const fragment = url.split("#")[1] ?? "";
+      const params = new URLSearchParams(`${query}&${fragment}`);
       const code = params.get("code");
       const tokenHash = params.get("token_hash");
       const type = params.get("type");
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+
       if (code) await supabase.auth.exchangeCodeForSession(code);
       if (tokenHash && type === "magiclink") {
         await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "magiclink" });
+      }
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
       }
     };
 
