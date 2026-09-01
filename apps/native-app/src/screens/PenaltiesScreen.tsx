@@ -1,11 +1,26 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
 import { colors } from "../theme/tokens";
 
 export function PenaltiesScreen({ appState }: { appState: AppState }) {
   return (
-    <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
+      <Card>
+        <Text style={styles.sectionLabel}>이번 주 룰</Text>
+        <View style={styles.ruleGrid}>
+          <View style={styles.rule}>
+            <Text style={styles.ruleNumber}>01</Text>
+            <Text style={styles.ruleText}>180분 미달</Text>
+            <Text style={styles.rulePenalty}>커피 사기</Text>
+          </View>
+          <View style={styles.rule}>
+            <Text style={styles.ruleNumber}>02</Text>
+            <Text style={styles.ruleText}>이탈 20분 초과</Text>
+            <Text style={styles.rulePenalty}>간식 사기</Text>
+          </View>
+        </View>
+      </Card>
       <Card>
         <Text style={styles.sectionLabel}>리더보드</Text>
         {appState.friends.map((friend, index) => (
@@ -28,7 +43,7 @@ export function PenaltiesScreen({ appState }: { appState: AppState }) {
           </View>
         ))}
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -40,6 +55,34 @@ const styles = StyleSheet.create({
     color: colors.brandDark,
     fontSize: 12,
     fontWeight: "800",
+  },
+  ruleGrid: {
+    marginTop: 14,
+    flexDirection: "row",
+    gap: 10,
+  },
+  rule: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "#FCF7F2",
+  },
+  ruleNumber: {
+    color: colors.brand,
+    fontSize: 11,
+    fontWeight: "800",
+  },
+  ruleText: {
+    marginTop: 8,
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  rulePenalty: {
+    marginTop: 4,
+    color: colors.brandDark,
+    fontSize: 12,
+    fontWeight: "700",
   },
   row: {
     marginTop: 14,

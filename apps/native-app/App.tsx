@@ -59,7 +59,7 @@ export default function App() {
         )}
 
         <View style={styles.content}>
-          {activeTab === "dashboard" && <DashboardScreen appState={appState} />}
+          {activeTab === "dashboard" && <DashboardScreen appState={appState} onStartStudy={() => setActiveTab("room")} />}
           {activeTab === "room" && <StudyRoomScreen appState={appState} sessionControls={sessionControls} />}
           {activeTab === "penalties" && <PenaltiesScreen appState={appState} />}
           {activeTab === "history" && <HistoryScreen appState={appState} />}

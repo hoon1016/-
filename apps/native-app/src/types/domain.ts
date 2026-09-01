@@ -28,6 +28,12 @@ export type PenaltyItem = {
   body: string;
 };
 
+export type SessionResult = {
+  title: string;
+  body: string;
+  tone: "good" | "warn";
+};
+
 export type HistoryItem = {
   title: string;
   meta: string;
@@ -49,4 +55,5 @@ export type AppState = {
   feed: FeedItem[];
   history: HistoryItem[];
   recordings: RecordingDay[];
+  lastSessionResults: SessionResult[];
 };

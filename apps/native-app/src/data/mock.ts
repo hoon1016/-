@@ -36,4 +36,5 @@ export const initialAppState: AppState = {
     { date: "2026-08-29", count: 1, title: "토요일 오전 세션", summary: "71분 집중 · 18분 이탈" },
     { date: "2026-08-27", count: 1, title: "목요일 저녁 세션", summary: "124분 집중 · 목표 달성" },
   ],
+  lastSessionResults: [],
 };

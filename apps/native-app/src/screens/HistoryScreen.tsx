@@ -1,36 +1,50 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
 import { colors } from "../theme/tokens";
 
 export function HistoryScreen({ appState }: { appState: AppState }) {
+  const [selectedDate, setSelectedDate] = useState(appState.recordings[0]?.date ?? "");
+  const selectedRecordings = appState.recordings.filter((recording) => recording.date === selectedDate);
+  const monthLabel = selectedDate
+    ? `${Number(selectedDate.slice(0, 4))}년 ${Number(selectedDate.slice(5, 7))}월`
+    : "기록 없음";
+
   return (
-    <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
       <Card>
-        <Text style={styles.sectionLabel}>기록 캘린더</Text>
+        <View style={styles.headRow}>
+          <View>
+            <Text style={styles.sectionLabel}>기록 캘린더</Text>
+            <Text style={styles.month}>{monthLabel}</Text>
+          </View>
+          <Text style={styles.recordedCount}>{appState.recordings.length}일 기록</Text>
+        </View>
         <View style={styles.calendar}>
           {appState.recordings.map((item) => (
-            <View key={item.date} style={styles.day}>
-              <Text style={styles.dayDate}>{item.date.slice(8)}</Text>
-              <Text style={styles.dayCount}>{item.count}개 기록</Text>
-            </View>
+            <Pressable key={item.date} onPress={() => setSelectedDate(item.date)} style={[styles.day, selectedDate === item.date && styles.daySelected]}>
+              <Text style={[styles.dayDate, selectedDate === item.date && styles.dayTextSelected]}>{item.date.slice(8)}</Text>
+              <Text style={[styles.dayCount, selectedDate === item.date && styles.dayTextSelected]}>{item.count}개 기록</Text>
+            </Pressable>
           ))}
         </View>
       </Card>
 
       <Card>
-        <Text style={styles.sectionLabel}>선택한 날짜</Text>
-        {appState.recordings.slice(0, 2).map((item) => (
+        <Text style={styles.sectionLabel}>{selectedDate || "선택한 날짜"}</Text>
+        {selectedRecordings.length ? selectedRecordings.map((item) => (
           <View key={item.date} style={styles.recording}>
             <Text style={styles.recordingTitle}>{item.title}</Text>
             <Text style={styles.recordingMeta}>{item.date} · {item.summary}</Text>
             <View style={styles.videoPlaceholder}>
-              <Text style={styles.videoText}>영상 썸네일 / 재생 영역</Text>
+              <Text style={styles.videoIcon}>▶</Text>
+              <Text style={styles.videoText}>캠스터디 영상 기록</Text>
             </View>
           </View>
-        ))}
+        )) : <Text style={styles.empty}>이 날짜에는 아직 남긴 영상 기록이 없어요.</Text>}
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -39,6 +53,26 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   sectionLabel: {
+    color: colors.brandDark,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  headRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  month: {
+    marginTop: 5,
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  recordedCount: {
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "#F7E9DE",
     color: colors.brandDark,
     fontSize: 12,
     fontWeight: "800",
@@ -56,6 +90,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "#FCF7F2",
   },
+  daySelected: {
+    backgroundColor: colors.navy,
+  },
+  dayTextSelected: {
+    color: "#FFFFFF",
+  },
   dayDate: {
     color: colors.text,
     fontSize: 16,
@@ -66,6 +106,11 @@ const styles = StyleSheet.create({
     color: colors.brandDark,
     fontSize: 12,
     fontWeight: "700",
+  },
+  empty: {
+    marginTop: 14,
+    color: colors.muted,
+    lineHeight: 20,
   },
   recording: {
     marginTop: 14,
@@ -90,6 +135,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#251D18",
     alignItems: "center",
     justifyContent: "center",
+  },
+  videoIcon: {
+    color: "#F4C8A8",
+    fontSize: 24,
+    fontWeight: "800",
   },
   videoText: {
     color: "#FFFFFF",

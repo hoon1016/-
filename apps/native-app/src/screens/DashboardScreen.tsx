@@ -1,13 +1,13 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
 import { colors } from "../theme/tokens";
 
-export function DashboardScreen({ appState }: { appState: AppState }) {
+export function DashboardScreen({ appState, onStartStudy }: { appState: AppState; onStartStudy: () => void }) {
   const progress = Math.min(100, Math.round((appState.focusMinutes / appState.goalMinutes) * 100));
   return (
-    <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={["#243646", "#31465C"]} style={styles.hero}>
         <View style={styles.heroText}>
           <Text style={styles.heroKicker}>YPT + Selog</Text>
@@ -32,6 +32,14 @@ export function DashboardScreen({ appState }: { appState: AppState }) {
         </View>
       </Card>
 
+      <Pressable style={styles.startButton} onPress={onStartStudy}>
+        <View>
+          <Text style={styles.startKicker}>CAM STUDY</Text>
+          <Text style={styles.startTitle}>친구들과 지금 공부 시작하기</Text>
+        </View>
+        <Text style={styles.startArrow}>→</Text>
+      </Pressable>
+
       <View style={styles.grid}>
         <Card>
           <Text style={styles.sectionLabel}>주간 순위</Text>
@@ -54,7 +62,7 @@ export function DashboardScreen({ appState }: { appState: AppState }) {
           </View>
         ))}
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -144,6 +152,31 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     gap: 14,
+  },
+  startButton: {
+    padding: 20,
+    borderRadius: 22,
+    backgroundColor: colors.navy,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  startKicker: {
+    color: "#D8E4EC",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  startTitle: {
+    marginTop: 6,
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "800",
+  },
+  startArrow: {
+    color: "#FFFFFF",
+    fontSize: 28,
+    fontWeight: "400",
   },
   statValue: {
     marginTop: 8,

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { AppState } from "../types/domain";
+import { AppState, SessionResult } from "../types/domain";
+import { penaltyService } from "../services/penaltyService";
 
 export type SessionControls = {
   isRunning: boolean;
   isAway: boolean;
   canRecord: boolean;
   startSession: () => void;
-  endSession: () => void;
+  endSession: () => Promise<void>;
   toggleAway: () => void;
   markCameraReady: (ready: boolean) => void;
   attachRecordedClip: (uri: string) => void;
@@ -59,19 +60,51 @@ export function useStudySession(initialState: AppState) {
     }));
   };
 
-  const endSession = () => {
+  const endSession = async () => {
     setIsRunning(false);
     setIsAway(false);
-    setAppState((current) => ({
-      ...current,
-      sessionStatus: "대기 중",
+    const current = appState;
+    const assignments = await penaltyService.assignForSession({
+      userId: "me",
+      focusMinutes: current.focusMinutes,
+      awayMinutes: current.awayMinutes,
+      goalMinutes: current.goalMinutes,
+      awayLimitMinutes: 20,
+    });
+    const results: SessionResult[] = assignments.length
+      ? assignments.map((assignment) => ({
+          title: assignment.reason,
+          body: assignment.penaltyText,
+          tone: "warn",
+        }))
+      : [{ title: "오늘 세션 클리어", body: "목표와 이탈 규칙을 모두 지켰어요. 패널티 없음", tone: "good" }];
+    const today = new Date().toISOString().slice(0, 10);
+
+    setAppState((previous) => ({
+      ...previous,
+      sessionStatus: "정산 완료",
+      penaltyCount: previous.penaltyCount + assignments.length,
+      friends: previous.friends.map((friend) =>
+        friend.id === "me" ? { ...friend, penalties: friend.penalties + assignments.length, status: "대기" } : friend,
+      ),
+      penaltyBoard: [
+        ...assignments.map((assignment) => ({ title: `나 · ${assignment.reason}`, body: assignment.penaltyText })),
+        ...previous.penaltyBoard,
+      ],
       history: [
         {
           title: `${new Date().toLocaleDateString("ko-KR")} 세션`,
-          meta: `${current.focusMinutes}분 집중 · ${latestClipUri.current ? "영상 저장됨" : "영상 없음"}`,
+          meta: `${previous.focusMinutes}분 집중 · ${previous.awayMinutes}분 이탈 · ${assignments.length ? `패널티 ${assignments.length}건` : "패널티 없음"}`,
         },
-        ...current.history,
+        ...previous.history,
       ],
+      recordings: latestClipUri.current
+        ? [
+            { date: today, count: 1, title: "오늘 캠스터디 기록", summary: `${previous.focusMinutes}분 집중 · 영상 저장됨` },
+            ...previous.recordings.filter((recording) => recording.date !== today),
+          ]
+        : previous.recordings,
+      lastSessionResults: results,
     }));
   };
 

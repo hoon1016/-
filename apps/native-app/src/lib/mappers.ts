@@ -87,5 +87,6 @@ export function mergeToAppState(input: {
     feed: toFeed(input.group.daily_goal_minutes, me?.focusMinutes ?? 0, false),
     history: input.participants.map((participant) => toHistoryItem(input.group, participant)),
     recordings: input.recordings.map(toRecordingDay),
+    lastSessionResults: [],
   };
 }

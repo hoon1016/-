@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CameraMode, CameraView, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
@@ -65,16 +65,16 @@ export function StudyRoomScreen({
     const ready = await startCameraSession();
     if (!ready) return;
     sessionControls.startSession();
-    await startRecording();
+    setRecordingStatus("세션 진행 중");
   };
 
-  const handleStudyEnd = () => {
+  const handleStudyEnd = async () => {
     if (isRecording) stopRecording();
-    sessionControls.endSession();
+    await sessionControls.endSession();
   };
 
   return (
-    <View style={styles.wrap}>
+    <ScrollView contentContainerStyle={styles.wrap} showsVerticalScrollIndicator={false}>
       <View style={styles.cameraStage}>
         <View style={styles.cameraHeader}>
           <Text style={styles.liveBadge}>LIVE ROOM</Text>
@@ -129,18 +129,33 @@ export function StudyRoomScreen({
           </View>
         </View>
         <View style={styles.actions}>
-          <Pressable style={styles.primaryAction} onPress={handleStudyStart}>
+          <Pressable style={[styles.primaryAction, sessionControls.isRunning && styles.primaryActionDisabled]} onPress={handleStudyStart} disabled={sessionControls.isRunning}>
             <Text style={styles.primaryActionLabel}>{sessionControls.isRunning ? "공부 진행 중" : "공부 시작"}</Text>
           </Pressable>
-          <Pressable style={styles.secondaryAction} onPress={sessionControls.toggleAway}>
+          <Pressable style={[styles.secondaryAction, !sessionControls.isRunning && styles.primaryActionDisabled]} onPress={sessionControls.toggleAway} disabled={!sessionControls.isRunning}>
             <Text style={styles.secondaryActionLabel}>{sessionControls.isAway ? "공부 복귀" : "잠깐 자리비움"}</Text>
           </Pressable>
-          <Pressable style={styles.ghostAction} onPress={handleStudyEnd}>
+          <Pressable style={[styles.recordAction, (!sessionControls.isRunning || !sessionControls.canRecord) && styles.primaryActionDisabled]} onPress={isRecording ? stopRecording : startRecording} disabled={!sessionControls.isRunning || !sessionControls.canRecord}>
+            <Text style={styles.recordActionLabel}>{isRecording ? "영상 기록 저장 중" : "영상 기록 시작"}</Text>
+          </Pressable>
+          <Pressable style={styles.ghostAction} onPress={handleStudyEnd} disabled={!sessionControls.isRunning}>
             <Text style={styles.ghostActionLabel}>세션 마감</Text>
           </Pressable>
         </View>
       </Card>
-    </View>
+
+      {!!appState.lastSessionResults.length && (
+        <Card>
+          <Text style={styles.sectionLabel}>이번 세션 자동 정산</Text>
+          {appState.lastSessionResults.map((result) => (
+            <View key={`${result.title}-${result.body}`} style={[styles.resultRow, result.tone === "warn" ? styles.resultWarn : styles.resultGood]}>
+              <Text style={styles.resultTitle}>{result.title}</Text>
+              <Text style={styles.resultBody}>{result.body}</Text>
+            </View>
+          ))}
+        </Card>
+      )}
+    </ScrollView>
   );
 }
 
@@ -268,6 +283,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "800",
   },
+  primaryActionDisabled: {
+    opacity: 0.62,
+  },
   secondaryAction: {
     paddingVertical: 14,
     borderRadius: 18,
@@ -276,6 +294,17 @@ const styles = StyleSheet.create({
   },
   secondaryActionLabel: {
     color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  recordAction: {
+    paddingVertical: 14,
+    borderRadius: 18,
+    backgroundColor: "#F7E9DE",
+    alignItems: "center",
+  },
+  recordActionLabel: {
+    color: colors.brandDark,
     fontSize: 15,
     fontWeight: "800",
   },
@@ -289,5 +318,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 15,
     fontWeight: "800",
+  },
+  resultRow: {
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 16,
+  },
+  resultGood: {
+    backgroundColor: "#EDF8F1",
+  },
+  resultWarn: {
+    backgroundColor: "#FFF2EE",
+  },
+  resultTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  resultBody: {
+    marginTop: 4,
+    color: colors.muted,
+    fontSize: 13,
   },
 });
