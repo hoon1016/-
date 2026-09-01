@@ -9,6 +9,7 @@ import { GroupSetupScreen } from "./src/screens/GroupSetupScreen";
 import { AppNotice } from "./src/components/AppNotice";
 import { BottomTabBar } from "./src/components/BottomTabBar";
 import { HeaderBar } from "./src/components/HeaderBar";
+import { GroupInviteCard } from "./src/components/GroupInviteCard";
 import { TabKey } from "./src/data/mock";
 import { colors } from "./src/theme/tokens";
 import { useStudySession } from "./src/hooks/useStudySession";
@@ -65,6 +66,7 @@ export default function App() {
           status={appState.sessionStatus}
           camera={appState.cameraStatus}
         />
+        {selectedGroup && <GroupInviteCard group={selectedGroup} />}
         {runtimeConfig.useMockData && (
           <AppNotice title="현재는 데모 데이터 모드" body="Supabase 환경값을 넣으면 실제 로그인, 그룹, 세션, 패널티가 서버와 연결됩니다." />
         )}

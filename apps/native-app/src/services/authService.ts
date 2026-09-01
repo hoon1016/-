@@ -13,20 +13,10 @@ export const authService = {
       password,
       options: {
         data: { nickname },
-        emailRedirectTo: Linking.createURL("auth/callback"),
       },
     });
     if (error) throw error;
     return data.user;
-  },
-
-  async sendMagicLink(email: string) {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      // Expo Go uses its own exp:// URL during development; installed builds use studybet://.
-      options: { emailRedirectTo: Linking.createURL("auth/callback") },
-    });
-    if (error) throw error;
   },
 
   async signInWithGoogle() {

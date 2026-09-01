@@ -51,25 +51,9 @@ export function LoginScreen() {
     setIsSending(true);
     try {
       const user = await authService.signUpWithPassword(email.trim(), password, nickname.trim());
-      setMessage(user?.identities?.length ? "가입 확인 이메일을 보냈어요. 같은 아이폰에서 링크를 열어 주세요." : "이미 가입된 이메일입니다. 로그인을 선택해 주세요.");
+      setMessage(user?.identities?.length ? "계정을 만들었어요. 이제 바로 StudyBet을 시작할 수 있어요." : "이미 가입된 이메일입니다. 로그인을 선택해 주세요.");
     } catch (error) {
       setMessage(errorMessage(error, "회원가입에 실패했습니다."));
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  const sendMagicLink = async () => {
-    if (!isValidEmail) {
-      setMessage("이메일 주소를 입력해 주세요.");
-      return;
-    }
-    setIsSending(true);
-    try {
-      await authService.sendMagicLink(email.trim());
-      setMessage("비밀번호 없는 로그인 링크를 보냈어요. 같은 아이폰에서 이메일을 열어 주세요.");
-    } catch (error) {
-      setMessage(errorMessage(error, "로그인 링크 전송에 실패했습니다."));
     } finally {
       setIsSending(false);
     }
@@ -162,11 +146,6 @@ export function LoginScreen() {
               <Pressable style={[styles.primaryButton, isSending && styles.disabled]} onPress={isSignUp ? signUp : signIn} disabled={isSending}>
                 <Text style={styles.primaryButtonText}>{isSending ? "처리 중" : isSignUp ? "회원가입" : "로그인"}</Text>
               </Pressable>
-              {!isSignUp && (
-                <Pressable onPress={sendMagicLink} disabled={isSending}>
-                  <Text style={styles.magicLink}>비밀번호 없이 이메일 링크로 로그인</Text>
-                </Pressable>
-              )}
             </View>
           )}
 
@@ -204,7 +183,6 @@ const styles = StyleSheet.create({
   keepSignedIn: { marginTop: 11, color: "#57595F", fontSize: 12, fontWeight: "600" },
   primaryButton: { marginTop: 18, height: 55, borderRadius: 6, alignItems: "center", justifyContent: "center", backgroundColor: "#1B1C1E" },
   primaryButtonText: { color: "#FFFFFF", fontSize: 15, fontWeight: "800" },
-  magicLink: { marginTop: 14, color: "#6E7077", fontSize: 12, fontWeight: "600", textAlign: "center", textDecorationLine: "underline" },
   googleButton: { marginTop: 24, height: 56, borderWidth: 1, borderColor: "#D8D9DD", borderRadius: 6, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, backgroundColor: "#FFFFFF" },
   googleBadge: { width: 22, height: 22, borderRadius: 11, alignItems: "center", justifyContent: "center", backgroundColor: "#F7F7F7" },
   googleMark: { color: "#4285F4", fontSize: 15, fontWeight: "900" },
