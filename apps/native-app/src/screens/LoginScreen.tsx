@@ -25,6 +25,17 @@ export function LoginScreen() {
     }
   };
 
+  const signInWithGoogle = async () => {
+    setIsSending(true);
+    try {
+      await authService.signInWithGoogle();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Google 로그인에 실패했습니다.");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <View style={styles.page}>
       <LinearGradient colors={["#243646", "#31465C"]} style={styles.hero}>
@@ -47,6 +58,15 @@ export function LoginScreen() {
         <Pressable style={[styles.button, isSending && styles.disabled]} onPress={sendLink} disabled={isSending}>
           <Text style={styles.buttonText}>{isSending ? "링크 보내는 중" : "로그인 링크 받기"}</Text>
         </Pressable>
+        <View style={styles.orRow}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>또는</Text>
+          <View style={styles.orLine} />
+        </View>
+        <Pressable style={[styles.googleButton, isSending && styles.disabled]} onPress={signInWithGoogle} disabled={isSending}>
+          <Text style={styles.googleMark}>G</Text>
+          <Text style={styles.googleText}>Google로 계속하기</Text>
+        </Pressable>
         {message && <Text style={styles.message}>{message}</Text>}
       </View>
     </View>
@@ -64,6 +84,12 @@ const styles = StyleSheet.create({
   input: { marginTop: 12, borderRadius: 14, borderWidth: 1, borderColor: colors.line, paddingHorizontal: 14, paddingVertical: 14, color: colors.text, fontSize: 16 },
   button: { marginTop: 12, backgroundColor: colors.brand, borderRadius: 14, paddingVertical: 15, alignItems: "center" },
   buttonText: { color: "#FFFFFF", fontWeight: "800", fontSize: 15 },
+  orRow: { marginTop: 16, flexDirection: "row", alignItems: "center", gap: 10 },
+  orLine: { flex: 1, height: 1, backgroundColor: colors.line },
+  orText: { color: colors.muted, fontSize: 12 },
+  googleButton: { marginTop: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.line, paddingVertical: 14, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
+  googleMark: { color: "#4285F4", fontSize: 17, fontWeight: "900" },
+  googleText: { color: colors.text, fontWeight: "800", fontSize: 15 },
   message: { marginTop: 12, color: colors.muted, fontSize: 13, lineHeight: 19 },
   disabled: { opacity: 0.55 },
 });

@@ -11,6 +11,19 @@ export const authService = {
     if (error) throw error;
   },
 
+  async signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: Linking.createURL("auth/callback"),
+        skipBrowserRedirect: true,
+      },
+    });
+    if (error) throw error;
+    if (!data.url) throw new Error("Google 로그인 주소를 만들지 못했습니다.");
+    await Linking.openURL(data.url);
+  },
+
   async getCurrentUser() {
     const { data, error } = await supabase.auth.getUser();
     if (error) throw error;
