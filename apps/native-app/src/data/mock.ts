@@ -1,4 +1,4 @@
-export type TabKey = "dashboard" | "room" | "penalties" | "history";
+export type TabKey = "dashboard" | "room" | "community" | "penalties" | "history";
 import { AppState } from "../types/domain";
 
 export const initialAppState: AppState = {

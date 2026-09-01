@@ -59,3 +59,26 @@ export type RecordingClipRow = {
   duration_seconds: number;
   created_at: string;
 };
+
+export type CommunityChannel = "chat" | "tips";
+
+export type CommunityPostRow = {
+  id: string;
+  group_id: string;
+  channel: CommunityChannel;
+  author_id: string;
+  author_nickname: string;
+  title: string;
+  body: string;
+  created_at: string;
+};
+
+export type CommunityCommentRow = {
+  id: string;
+  post_id: string;
+  group_id: string;
+  author_id: string;
+  author_nickname: string;
+  body: string;
+  created_at: string;
+};

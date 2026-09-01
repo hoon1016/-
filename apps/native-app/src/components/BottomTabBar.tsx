@@ -5,6 +5,7 @@ import { TabKey } from "../data/mock";
 const tabs: { key: TabKey; label: string }[] = [
   { key: "dashboard", label: "대시보드" },
   { key: "room", label: "스터디룸" },
+  { key: "community", label: "커뮤니티" },
   { key: "penalties", label: "패널티" },
   { key: "history", label: "기록" },
 ];
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.muted,
     fontWeight: "700",
-    fontSize: 12,
+    fontSize: 10,
   },
   activeLabel: {
     color: "#FFFFFF",

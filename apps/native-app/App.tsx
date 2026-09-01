@@ -18,6 +18,7 @@ import { useAuthSession } from "./src/hooks/useAuthSession";
 import { runtimeConfig } from "./src/config/runtime";
 import { groupRepository } from "./src/repositories/groupRepository";
 import { StudyGroupRow } from "./src/types/supabase";
+import { CommunityScreen } from "./src/screens/CommunityScreen";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
@@ -41,6 +42,7 @@ export default function App() {
 
   const activeTitle = useMemo(() => {
     if (activeTab === "room") return "스터디룸";
+    if (activeTab === "community") return "커뮤니티";
     if (activeTab === "penalties") return "패널티 보드";
     if (activeTab === "history") return "기록";
     return "대시보드";
@@ -77,6 +79,7 @@ export default function App() {
         <View style={styles.content}>
           {activeTab === "dashboard" && <DashboardScreen appState={appState} onStartStudy={() => setActiveTab("room")} />}
           {activeTab === "room" && <StudyRoomScreen appState={appState} sessionControls={sessionControls} />}
+          {activeTab === "community" && selectedGroup && session && <CommunityScreen groupId={selectedGroup.id} userId={session.user.id} nickname={String(session.user.user_metadata.full_name ?? session.user.email?.split("@")[0] ?? "스터디러")} />}
           {activeTab === "penalties" && <PenaltiesScreen appState={appState} />}
           {activeTab === "history" && <HistoryScreen appState={appState} />}
         </View>
