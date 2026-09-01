@@ -62,7 +62,7 @@ export type RecordingClipRow = {
   created_at: string;
 };
 
-export type CommunityChannel = "chat" | "tips";
+export type CommunityChannel = "chat" | "tips" | "challenge";
 
 export type CommunityPostRow = {
   id: string;
@@ -72,6 +72,9 @@ export type CommunityPostRow = {
   author_nickname: string;
   title: string;
   body: string;
+  image_path: string | null;
+  challenge_goal_minutes: number | null;
+  challenge_focus_minutes: number | null;
   created_at: string;
 };
 
