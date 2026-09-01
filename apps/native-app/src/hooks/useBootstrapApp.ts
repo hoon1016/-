@@ -4,7 +4,7 @@ import { runtimeConfig } from "../config/runtime";
 import { bootstrapService } from "../services/bootstrapService";
 import { AppState } from "../types/domain";
 
-export function useBootstrapApp() {
+export function useBootstrapApp(userId?: string, groupId?: string) {
   const [appState, setAppState] = useState<AppState>(initialAppState);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
@@ -13,17 +13,14 @@ export function useBootstrapApp() {
     let active = true;
 
     async function hydrate() {
-      if (runtimeConfig.useMockData) {
+      if (runtimeConfig.useMockData || !userId || !groupId) {
         if (!active) return;
         setIsBootstrapping(false);
         return;
       }
 
       try {
-        const hydrated = await bootstrapService.hydrateApp(
-          runtimeConfig.demoInviteCode,
-          runtimeConfig.demoUserId,
-        );
+        const hydrated = await bootstrapService.hydrateApp(groupId, userId);
 
         if (!active) return;
         if (hydrated) setAppState(hydrated);
@@ -42,7 +39,7 @@ export function useBootstrapApp() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [groupId, userId]);
 
   return {
     appState,

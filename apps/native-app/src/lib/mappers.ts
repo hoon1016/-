@@ -62,6 +62,7 @@ export function mergeToAppState(input: {
   penalties: PenaltyAssignmentRow[];
   recordings: RecordingClipRow[];
   participants: SessionParticipantRow[];
+  currentUserId: string;
 }): AppState {
   const friends = input.members.map((member) =>
     toFriend(
@@ -69,7 +70,7 @@ export function mergeToAppState(input: {
       input.participants.find((participant) => participant.user_id === member.user_id),
     ),
   );
-  const me = friends[0];
+  const me = friends.find((friend) => friend.id === input.currentUserId) ?? friends[0];
 
   return {
     sessionStatus: "대기 중",

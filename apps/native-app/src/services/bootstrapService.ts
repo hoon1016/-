@@ -6,8 +6,8 @@ import { recordingRepository } from "../repositories/recordingRepository";
 import { sessionRepository } from "../repositories/sessionRepository";
 
 export const bootstrapService = {
-  async hydrateApp(inviteCode: string, currentUserId: string): Promise<AppState | null> {
-    const group = await groupRepository.getGroupByInviteCode(inviteCode);
+  async hydrateApp(groupId: string, currentUserId: string): Promise<AppState | null> {
+    const group = await groupRepository.getGroupById(groupId);
     if (!group) return null;
 
     const [members, penalties, recordings, participants] = await Promise.all([
@@ -23,6 +23,7 @@ export const bootstrapService = {
       penalties,
       recordings,
       participants,
+      currentUserId,
     });
   },
 };

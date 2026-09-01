@@ -2,7 +2,10 @@ import { supabase } from "../lib/supabase";
 
 export const authService = {
   async sendMagicLink(email: string) {
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: "studybet://auth/callback" },
+    });
     if (error) throw error;
   },
 

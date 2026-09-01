@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState, SessionResult } from "../types/domain";
 import { penaltyService } from "../services/penaltyService";
+import { runtimeConfig } from "../config/runtime";
+import { sessionRepository } from "../repositories/sessionRepository";
 
 export type SessionControls = {
   isRunning: boolean;
   isAway: boolean;
   canRecord: boolean;
-  startSession: () => void;
+  startSession: () => Promise<void>;
   endSession: () => Promise<void>;
   toggleAway: () => void;
   markCameraReady: (ready: boolean) => void;
   attachRecordedClip: (uri: string) => void;
 };
 
-export function useStudySession(initialState: AppState) {
+export function useStudySession(initialState: AppState, groupId?: string, currentUserId?: string) {
   const [appState, setAppState] = useState<AppState>(initialState);
   const [isRunning, setIsRunning] = useState(false);
   const [isAway, setIsAway] = useState(false);
   const [canRecord, setCanRecord] = useState(false);
   const latestClipUri = useRef<string | null>(null);
+  const activeSessionId = useRef<string | null>(null);
 
   useEffect(() => {
     setAppState(initialState);
@@ -51,7 +54,12 @@ export function useStudySession(initialState: AppState) {
     return () => clearInterval(timer);
   }, [isAway, isRunning]);
 
-  const startSession = () => {
+  const startSession = async () => {
+    if (!runtimeConfig.useMockData) {
+      if (!groupId) throw new Error("스터디방을 선택해 주세요.");
+      const session = await sessionRepository.createLiveSession(groupId);
+      activeSessionId.current = session.id;
+    }
     setIsRunning(true);
     setIsAway(false);
     setAppState((current) => ({
@@ -64,15 +72,26 @@ export function useStudySession(initialState: AppState) {
     setIsRunning(false);
     setIsAway(false);
     const current = appState;
-    const assignments = await penaltyService.assignForSession({
+    const localAssignments = await penaltyService.assignForSession({
       userId: "me",
       focusMinutes: current.focusMinutes,
       awayMinutes: current.awayMinutes,
       goalMinutes: current.goalMinutes,
       awayLimitMinutes: 20,
     });
-    const results: SessionResult[] = assignments.length
-      ? assignments.map((assignment) => ({
+    let serverPenaltyCount = localAssignments.length;
+    if (!runtimeConfig.useMockData && activeSessionId.current) {
+      const settlement = await sessionRepository.finishMySession({
+        sessionId: activeSessionId.current,
+        focusSeconds: current.focusMinutes * 60,
+        awaySeconds: current.awayMinutes * 60,
+        cameraOnRate: canRecord ? 100 : 0,
+      });
+      serverPenaltyCount = settlement.penalty_count;
+      activeSessionId.current = null;
+    }
+    const results: SessionResult[] = serverPenaltyCount
+      ? localAssignments.map((assignment) => ({
           title: assignment.reason,
           body: assignment.penaltyText,
           tone: "warn",
@@ -83,18 +102,20 @@ export function useStudySession(initialState: AppState) {
     setAppState((previous) => ({
       ...previous,
       sessionStatus: "정산 완료",
-      penaltyCount: previous.penaltyCount + assignments.length,
+      penaltyCount: previous.penaltyCount + serverPenaltyCount,
       friends: previous.friends.map((friend) =>
-        friend.id === "me" ? { ...friend, penalties: friend.penalties + assignments.length, status: "대기" } : friend,
+        friend.id === (currentUserId ?? "me")
+          ? { ...friend, penalties: friend.penalties + serverPenaltyCount, status: "대기" }
+          : friend,
       ),
       penaltyBoard: [
-        ...assignments.map((assignment) => ({ title: `나 · ${assignment.reason}`, body: assignment.penaltyText })),
+        ...localAssignments.map((assignment) => ({ title: `나 · ${assignment.reason}`, body: assignment.penaltyText })),
         ...previous.penaltyBoard,
       ],
       history: [
         {
           title: `${new Date().toLocaleDateString("ko-KR")} 세션`,
-          meta: `${previous.focusMinutes}분 집중 · ${previous.awayMinutes}분 이탈 · ${assignments.length ? `패널티 ${assignments.length}건` : "패널티 없음"}`,
+          meta: `${previous.focusMinutes}분 집중 · ${previous.awayMinutes}분 이탈 · ${serverPenaltyCount ? `패널티 ${serverPenaltyCount}건` : "패널티 없음"}`,
         },
         ...previous.history,
       ],

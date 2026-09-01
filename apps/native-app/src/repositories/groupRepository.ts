@@ -40,6 +40,23 @@ export const groupRepository = {
     return data;
   },
 
+  async getGroupById(groupId: string): Promise<StudyGroupRow | null> {
+    const { data, error } = await supabase.from("study_groups").select("*").eq("id", groupId).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  async listMyGroups(userId: string): Promise<StudyGroupRow[]> {
+    const { data: memberships, error: membershipError } = await supabase
+      .from("group_members")
+      .select("group_id")
+      .eq("user_id", userId);
+    if (membershipError) throw membershipError;
+    return Promise.all((memberships ?? []).map(({ group_id }) => this.getGroupById(group_id))).then((groups) =>
+      groups.filter((group): group is StudyGroupRow => group !== null),
+    );
+  },
+
   async getMembers(groupId: string): Promise<GroupMemberRow[]> {
     const { data, error } = await supabase
       .from("group_members")

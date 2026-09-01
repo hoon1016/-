@@ -64,13 +64,21 @@ export function StudyRoomScreen({
   const handleStudyStart = async () => {
     const ready = await startCameraSession();
     if (!ready) return;
-    sessionControls.startSession();
-    setRecordingStatus("세션 진행 중");
+    try {
+      await sessionControls.startSession();
+      setRecordingStatus("세션 진행 중");
+    } catch (error) {
+      setRecordingStatus(error instanceof Error ? error.message : "세션을 시작하지 못했습니다.");
+    }
   };
 
   const handleStudyEnd = async () => {
     if (isRecording) stopRecording();
-    await sessionControls.endSession();
+    try {
+      await sessionControls.endSession();
+    } catch (error) {
+      setRecordingStatus(error instanceof Error ? error.message : "세션 정산에 실패했습니다.");
+    }
   };
 
   return (
