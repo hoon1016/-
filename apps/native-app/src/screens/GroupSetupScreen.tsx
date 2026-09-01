@@ -17,22 +17,40 @@ export function GroupSetupScreen({
   const [message, setMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const createGroup = async () => {
-    const trimmedName = groupName.trim();
-    const trimmedNickname = nickname.trim();
+  const getNickname = () => {
+    const value = nickname.trim();
+    if (value.length >= 2) return value;
+    setMessage("내 닉네임을 2글자 이상 입력해 주세요.");
+    return null;
+  };
 
-    if (trimmedNickname.length < 2) {
-      setMessage("내 닉네임을 2글자 이상 입력해 주세요.");
-      return;
+  const run = async (action: () => Promise<void>, fallback: string) => {
+    setMessage(null);
+    setIsSaving(true);
+    try {
+      await action();
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "";
+      setMessage(
+        detail.toLowerCase().includes("authentication required")
+          ? "로그인 정보가 만료됐어요. 앱을 다시 열고 로그인해 주세요."
+          : detail || fallback,
+      );
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const createGroup = () => {
+    const trimmedName = groupName.trim();
+    const trimmedNickname = getNickname();
+    if (!trimmedNickname) return;
     if (trimmedName.length < 2 || trimmedName.length > 40) {
       setMessage("스터디방 이름은 2글자 이상 40글자 이하로 입력해 주세요.");
       return;
     }
 
-    setMessage(null);
-    setIsSaving(true);
-    try {
+    return run(async () => {
       const group = await groupRepository.createGroup({
         name: trimmedName,
         dailyGoalMinutes: 180,
@@ -40,39 +58,23 @@ export function GroupSetupScreen({
         nickname: trimmedNickname,
       });
       onSelect(group);
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : "";
-      if (detail.toLowerCase().includes("authentication required")) {
-        setMessage("로그인 정보가 만료됐어요. 앱을 다시 열고 로그인해 주세요.");
-      } else {
-        setMessage(detail || "스터디방을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
-      }
-    } finally {
-      setIsSaving(false);
-    }
+    }, "스터디방을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
   };
-  const joinGroup = async () => {
-    if (nickname.trim().length < 2) {
-      setMessage("내 닉네임을 2글자 이상 입력해 주세요.");
-      return;
-    }
+
+  const joinGroup = () => {
+    const trimmedNickname = getNickname();
+    if (!trimmedNickname) return;
     if (!inviteCode.trim()) {
       setMessage("친구에게 받은 초대코드를 입력해 주세요.");
       return;
     }
 
-    setMessage(null);
-    setIsSaving(true);
-    try {
-      const member = await groupRepository.joinByInviteCode(inviteCode, nickname.trim());
+    return run(async () => {
+      const member = await groupRepository.joinByInviteCode(inviteCode, trimmedNickname);
       const group = await groupRepository.getGroupById(member.group_id);
       if (!group) throw new Error("스터디방 정보를 찾지 못했습니다.");
       onSelect(group);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "초대코드를 확인해 주세요.");
-    } finally {
-      setIsSaving(false);
-    }
+    }, "초대코드를 확인해 주세요.");
   };
 
   return (
