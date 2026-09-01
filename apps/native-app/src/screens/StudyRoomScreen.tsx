@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { CameraMode, CameraView, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
 import { colors } from "../theme/tokens";
@@ -86,7 +86,7 @@ export function StudyRoomScreen({
               ref={cameraRef}
               style={styles.cameraPreview}
               facing="front"
-              mode={CameraMode.video}
+              mode="video"
               active
             />
           ) : (
