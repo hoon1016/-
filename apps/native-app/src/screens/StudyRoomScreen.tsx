@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   cameraStage: {
     borderRadius: 28,
     backgroundColor: "#251D18",
-    minHeight: 360,
+    minHeight: 430,
     padding: 18,
     justifyContent: "space-between",
   },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AppState } from "../types/domain";
 import { Card } from "../components/Card";
@@ -8,6 +8,13 @@ import { colors } from "../theme/tokens";
 
 export function HistoryScreen({ appState }: { appState: AppState }) {
   const [selectedDate, setSelectedDate] = useState(appState.recordings[0]?.date ?? "");
+  useEffect(() => {
+    const latestDate = appState.recordings[0]?.date;
+    if (latestDate && !appState.recordings.some((recording) => recording.date === selectedDate)) {
+      setSelectedDate(latestDate);
+    }
+  }, [appState.recordings, selectedDate]);
+
   const selectedRecordings = appState.recordings.filter((recording) => recording.date === selectedDate);
   const monthLabel = selectedDate
     ? `${Number(selectedDate.slice(0, 4))}년 ${Number(selectedDate.slice(5, 7))}월`
