@@ -18,20 +18,53 @@ export function GroupSetupScreen({
   const [isSaving, setIsSaving] = useState(false);
 
   const createGroup = async () => {
+    const trimmedName = groupName.trim();
+    const trimmedNickname = nickname.trim();
+
+    if (trimmedNickname.length < 2) {
+      setMessage("내 닉네임을 2글자 이상 입력해 주세요.");
+      return;
+    }
+    if (trimmedName.length < 2 || trimmedName.length > 40) {
+      setMessage("스터디방 이름은 2글자 이상 40글자 이하로 입력해 주세요.");
+      return;
+    }
+
+    setMessage(null);
     setIsSaving(true);
     try {
-      const group = await groupRepository.createGroup({ name: groupName, dailyGoalMinutes: 180, awayLimitMinutes: 15, nickname });
+      const group = await groupRepository.createGroup({
+        name: trimmedName,
+        dailyGoalMinutes: 180,
+        awayLimitMinutes: 15,
+        nickname: trimmedNickname,
+      });
       onSelect(group);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "스터디방을 만들지 못했습니다.");
+      const detail = error instanceof Error ? error.message : "";
+      if (detail.toLowerCase().includes("authentication required")) {
+        setMessage("로그인 정보가 만료됐어요. 앱을 다시 열고 로그인해 주세요.");
+      } else {
+        setMessage(detail || "스터디방을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      }
     } finally {
       setIsSaving(false);
     }
   };
   const joinGroup = async () => {
+    if (nickname.trim().length < 2) {
+      setMessage("내 닉네임을 2글자 이상 입력해 주세요.");
+      return;
+    }
+    if (!inviteCode.trim()) {
+      setMessage("친구에게 받은 초대코드를 입력해 주세요.");
+      return;
+    }
+
+    setMessage(null);
     setIsSaving(true);
     try {
-      const member = await groupRepository.joinByInviteCode(inviteCode, nickname);
+      const member = await groupRepository.joinByInviteCode(inviteCode, nickname.trim());
       const group = await groupRepository.getGroupById(member.group_id);
       if (!group) throw new Error("스터디방 정보를 찾지 못했습니다.");
       onSelect(group);
@@ -54,9 +87,9 @@ export function GroupSetupScreen({
       ))}
       <View style={styles.card}>
         <Text style={styles.label}>내 닉네임</Text>
-        <TextInput style={styles.input} placeholder="예: 후니" value={nickname} onChangeText={setNickname} />
+        <TextInput style={styles.input} placeholder="예: 후니 (2글자 이상)" value={nickname} onChangeText={setNickname} />
         <Text style={[styles.label, styles.top]}>새 스터디방 이름</Text>
-        <TextInput style={styles.input} placeholder="예: 토익 800 달성반" value={groupName} onChangeText={setGroupName} />
+        <TextInput style={styles.input} placeholder="예: 토익 800 달성반 (2글자 이상)" value={groupName} onChangeText={setGroupName} />
         <Pressable style={[styles.primary, isSaving && styles.disabled]} onPress={createGroup} disabled={isSaving}>
           <Text style={styles.primaryText}>새 방 만들기</Text>
         </Pressable>
