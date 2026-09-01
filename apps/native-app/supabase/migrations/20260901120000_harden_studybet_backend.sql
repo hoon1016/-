@@ -247,7 +247,7 @@ begin
   end if;
 
   loop
-    generated_code := 'STB-' || upper(substr(encode(gen_random_bytes(4), 'hex'), 1, 8));
+    generated_code := 'STB-' || upper(substr(encode(extensions.gen_random_bytes(4), 'hex'), 1, 8));
     exit when not exists (select 1 from public.study_groups where invite_code = generated_code);
   end loop;
 
