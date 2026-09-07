@@ -5,11 +5,6 @@
     "slug": "studybet-native-app",
     "version": "0.1.0",
     "icon": "./assets/studybet-icon.png",
-    "splash": {
-      "image": "./assets/studybet-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#173C35"
-    },
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [
@@ -44,7 +39,17 @@
         {
           "photosPermission": "StudyBet 챌린지 사진을 올리기 위해 사진 보관함 접근을 허용해 주세요."
         }
-      ]
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#173C35",
+          "image": "./assets/studybet-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      "expo-status-bar",
+      "expo-font"
     ]
   }
 }
