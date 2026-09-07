@@ -19,6 +19,7 @@ import { groupRepository } from "./src/repositories/groupRepository";
 import { StudyGroupRow } from "./src/types/supabase";
 import { CommunityScreen } from "./src/screens/CommunityScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
+import { LaunchScreen } from "./src/components/LaunchScreen";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
@@ -26,6 +27,8 @@ export default function App() {
   const [groups, setGroups] = useState<StudyGroupRow[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<StudyGroupRow | null>(null);
   const [isChoosingGroup, setIsChoosingGroup] = useState(false);
+  const [isGroupsLoading, setIsGroupsLoading] = useState(!runtimeConfig.useMockData);
+  const [launchDelayElapsed, setLaunchDelayElapsed] = useState(false);
   const { appState: bootstrappedState, setAppState: setBootstrappedState, isBootstrapping, bootstrapError } = useBootstrapApp(
     session?.user.id,
     selectedGroup?.id,
@@ -37,8 +40,36 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (runtimeConfig.useMockData || !session?.user.id) return;
-    void groupRepository.listMyGroups(session.user.id).then(setGroups).catch(() => setGroups([]));
+    const timer = setTimeout(() => setLaunchDelayElapsed(true), 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (runtimeConfig.useMockData) {
+      setIsGroupsLoading(false);
+      return;
+    }
+    if (!session?.user.id) {
+      setGroups([]);
+      setSelectedGroup(null);
+      setIsGroupsLoading(false);
+      return;
+    }
+    let active = true;
+    setIsGroupsLoading(true);
+    void groupRepository.listMyGroups(session.user.id)
+      .then((nextGroups) => {
+        if (!active) return;
+        setGroups(nextGroups);
+        setSelectedGroup((current) => current ?? nextGroups[0] ?? null);
+      })
+      .catch(() => {
+        if (active) setGroups([]);
+      })
+      .finally(() => {
+        if (active) setIsGroupsLoading(false);
+      });
+    return () => { active = false; };
   }, [session?.user.id]);
 
   const activeTitle = useMemo(() => {
@@ -50,7 +81,10 @@ export default function App() {
     return "대시보드";
   }, [activeTab]);
 
-  if (!runtimeConfig.useMockData && isAuthLoading) return <SafeAreaView style={styles.safeArea} />;
+  const isLaunching = !launchDelayElapsed || (!runtimeConfig.useMockData && (
+    isAuthLoading || Boolean(session && (isGroupsLoading || (selectedGroup && isBootstrapping)))
+  ));
+  if (isLaunching) return <LaunchScreen />;
   if (!runtimeConfig.useMockData && !session) return <LoginScreen />;
   if (!runtimeConfig.useMockData && (!selectedGroup || isChoosingGroup)) {
     return (

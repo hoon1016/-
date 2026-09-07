@@ -19,6 +19,8 @@ export function useBootstrapApp(userId?: string, groupId?: string) {
         return;
       }
 
+      setIsBootstrapping(true);
+      setBootstrapError(null);
       try {
         const hydrated = await bootstrapService.hydrateApp(groupId, userId);
 
