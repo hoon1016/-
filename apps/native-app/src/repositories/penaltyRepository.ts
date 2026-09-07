@@ -44,4 +44,9 @@ export const penaltyRepository = {
     if (error) throw error;
     return data ?? [];
   },
+
+  async updateStatus(id: string, status: "accepted" | "completed"): Promise<void> {
+    const { error } = await supabase.from("penalty_assignments").update({ status }).eq("id", id);
+    if (error) throw error;
+  },
 };

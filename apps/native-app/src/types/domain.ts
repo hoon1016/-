@@ -32,8 +32,11 @@ export type FeedItem = {
 };
 
 export type PenaltyItem = {
+  id?: string;
+  userId?: string;
   title: string;
   body: string;
+  status?: "assigned" | "accepted" | "completed";
 };
 
 export type SessionResult = {

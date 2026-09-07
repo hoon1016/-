@@ -1,13 +1,14 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radii } from "../theme/tokens";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, radii, shadows } from "../theme/tokens";
 import { TabKey } from "../data/mock";
 
-const tabs: { key: TabKey; label: string }[] = [
-  { key: "dashboard", label: "대시보드" },
-  { key: "room", label: "스터디룸" },
-  { key: "community", label: "커뮤니티" },
-  { key: "penalties", label: "패널티" },
-  { key: "history", label: "기록" },
+const tabs: { key: TabKey; label: string; icon: keyof typeof Ionicons.glyphMap; activeIcon: keyof typeof Ionicons.glyphMap }[] = [
+  { key: "dashboard", label: "홈", icon: "home-outline", activeIcon: "home" },
+  { key: "room", label: "스터디", icon: "videocam-outline", activeIcon: "videocam" },
+  { key: "community", label: "커뮤니티", icon: "chatbubbles-outline", activeIcon: "chatbubbles" },
+  { key: "history", label: "기록", icon: "calendar-outline", activeIcon: "calendar" },
+  { key: "settings", label: "내 정보", icon: "person-outline", activeIcon: "person" },
 ];
 
 export function BottomTabBar({
@@ -25,6 +26,11 @@ export function BottomTabBar({
           onPress={() => onChange(tab.key)}
           style={[styles.tab, activeTab === tab.key && styles.activeTab]}
         >
+          <Ionicons
+            name={activeTab === tab.key ? tab.activeIcon : tab.icon}
+            size={21}
+            color={activeTab === tab.key ? colors.brand : colors.muted}
+          />
           <Text style={[styles.label, activeTab === tab.key && styles.activeLabel]}>{tab.label}</Text>
         </Pressable>
       ))}
@@ -35,32 +41,34 @@ export function BottomTabBar({
 const styles = StyleSheet.create({
   wrap: {
     position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
+    left: 14,
+    right: 14,
+    bottom: 10,
     flexDirection: "row",
-    gap: 8,
-    padding: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 8,
     borderRadius: radii.xl,
-    backgroundColor: "rgba(255,248,241,0.96)",
+    backgroundColor: "rgba(255,255,255,0.98)",
     borderWidth: 1,
     borderColor: colors.line,
+    ...shadows.card,
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 6,
     borderRadius: radii.md,
     alignItems: "center",
   },
   activeTab: {
-    backgroundColor: colors.navy,
+    backgroundColor: colors.brandSoft,
   },
   label: {
     color: colors.muted,
     fontWeight: "700",
     fontSize: 10,
+    marginTop: 4,
   },
   activeLabel: {
-    color: "#FFFFFF",
+    color: colors.brandDark,
   },
 });

@@ -8,7 +8,7 @@
     "splash": {
       "image": "./assets/studybet-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#243646"
+      "backgroundColor": "#173C35"
     },
     "orientation": "portrait",
     "userInterfaceStyle": "light",

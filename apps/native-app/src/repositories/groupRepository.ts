@@ -67,4 +67,25 @@ export const groupRepository = {
     if (error) throw error;
     return data ?? [];
   },
+
+  async updateRules(groupId: string, input: {
+    dailyGoalMinutes: number;
+    awayLimitMinutes: number;
+    goalPenaltyText: string;
+    awayPenaltyText: string;
+  }): Promise<StudyGroupRow> {
+    const { data, error } = await supabase
+      .from("study_groups")
+      .update({
+        daily_goal_minutes: input.dailyGoalMinutes,
+        away_limit_minutes: input.awayLimitMinutes,
+        goal_penalty_text: input.goalPenaltyText,
+        away_penalty_text: input.awayPenaltyText,
+      })
+      .eq("id", groupId)
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data;
+  },
 };

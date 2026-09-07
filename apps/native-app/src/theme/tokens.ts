@@ -1,16 +1,18 @@
 export const colors = {
-  background: "#F4EFE8",
-  panel: "#FFF8F1",
+  background: "#F6F7F3",
+  panel: "#EEF2EC",
   card: "#FFFFFF",
-  text: "#1F1A17",
-  muted: "#6E655D",
-  line: "#E8DDD1",
-  brand: "#C0613B",
-  brandDark: "#7C351D",
-  navy: "#243646",
-  good: "#2E7A54",
-  warn: "#BF6B1E",
-  bad: "#A33B3B",
+  text: "#17211D",
+  muted: "#728078",
+  line: "#E4E9E5",
+  brand: "#FF6B4A",
+  brandSoft: "#FFF0EB",
+  brandDark: "#B83E25",
+  navy: "#173C35",
+  navySoft: "#E4EFEB",
+  good: "#20845D",
+  warn: "#C87524",
+  bad: "#C44242",
 };
 
 export const spacing = {
@@ -22,8 +24,19 @@ export const spacing = {
 };
 
 export const radii = {
-  md: 16,
-  lg: 22,
-  xl: 28,
+  sm: 12,
+  md: 18,
+  lg: 24,
+  xl: 30,
   pill: 999,
+};
+
+export const shadows = {
+  card: {
+    shadowColor: "#173C35",
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.07,
+    shadowRadius: 18,
+    elevation: 3,
+  },
 };

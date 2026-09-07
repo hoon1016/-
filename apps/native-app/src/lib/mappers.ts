@@ -15,8 +15,11 @@ export function toFriend(member: GroupMemberRow, participant?: SessionParticipan
 
 export function toPenaltyItem(row: PenaltyAssignmentRow): PenaltyItem {
   return {
+    id: row.id,
+    userId: row.user_id,
     title: `${row.nickname} · ${row.reason}`,
     body: row.penalty_text,
+    status: row.status,
   };
 }
 

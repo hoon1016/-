@@ -9,7 +9,6 @@ import { GroupSetupScreen } from "./src/screens/GroupSetupScreen";
 import { AppNotice } from "./src/components/AppNotice";
 import { BottomTabBar } from "./src/components/BottomTabBar";
 import { HeaderBar } from "./src/components/HeaderBar";
-import { GroupInviteCard } from "./src/components/GroupInviteCard";
 import { TabKey } from "./src/data/mock";
 import { colors } from "./src/theme/tokens";
 import { useStudySession } from "./src/hooks/useStudySession";
@@ -19,13 +18,15 @@ import { runtimeConfig } from "./src/config/runtime";
 import { groupRepository } from "./src/repositories/groupRepository";
 import { StudyGroupRow } from "./src/types/supabase";
 import { CommunityScreen } from "./src/screens/CommunityScreen";
+import { SettingsScreen } from "./src/screens/SettingsScreen";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("dashboard");
   const { session, isLoading: isAuthLoading } = useAuthSession(!runtimeConfig.useMockData);
   const [groups, setGroups] = useState<StudyGroupRow[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<StudyGroupRow | null>(null);
-  const { appState: bootstrappedState, isBootstrapping, bootstrapError } = useBootstrapApp(
+  const [isChoosingGroup, setIsChoosingGroup] = useState(false);
+  const { appState: bootstrappedState, setAppState: setBootstrappedState, isBootstrapping, bootstrapError } = useBootstrapApp(
     session?.user.id,
     selectedGroup?.id,
   );
@@ -45,15 +46,20 @@ export default function App() {
     if (activeTab === "community") return "커뮤니티";
     if (activeTab === "penalties") return "패널티 보드";
     if (activeTab === "history") return "기록";
+    if (activeTab === "settings") return "내 정보";
     return "대시보드";
   }, [activeTab]);
 
   if (!runtimeConfig.useMockData && isAuthLoading) return <SafeAreaView style={styles.safeArea} />;
   if (!runtimeConfig.useMockData && !session) return <LoginScreen />;
-  if (!runtimeConfig.useMockData && !selectedGroup) {
+  if (!runtimeConfig.useMockData && (!selectedGroup || isChoosingGroup)) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <GroupSetupScreen groups={groups} onSelect={setSelectedGroup} />
+        <GroupSetupScreen groups={groups} defaultNickname={String(session?.user.user_metadata.full_name ?? session?.user.user_metadata.nickname ?? "")} onSelect={(group) => {
+          setSelectedGroup(group);
+          setGroups((current) => current.some((item) => item.id === group.id) ? current : [...current, group]);
+          setIsChoosingGroup(false);
+        }} />
       </SafeAreaView>
     );
   }
@@ -67,8 +73,9 @@ export default function App() {
           subtitle={selectedGroup ? selectedGroup.name : "친구와 함께 하는 캠스터디"}
           status={appState.sessionStatus}
           camera={appState.cameraStatus}
+          onOpenGroups={() => setActiveTab("settings")}
+          onOpenSettings={() => setActiveTab("settings")}
         />
-        {selectedGroup && <GroupInviteCard group={selectedGroup} />}
         {runtimeConfig.useMockData && (
           <AppNotice title="현재는 데모 데이터 모드" body="Supabase 환경값을 넣으면 실제 로그인, 그룹, 세션, 패널티가 서버와 연결됩니다." />
         )}
@@ -77,11 +84,33 @@ export default function App() {
         )}
         {bootstrapError && <AppNotice tone="warn" title="서버 연결 확인 필요" body={bootstrapError} />}
         <View style={styles.content}>
-          {activeTab === "dashboard" && <DashboardScreen appState={appState} onStartStudy={() => setActiveTab("room")} />}
+          {activeTab === "dashboard" && <DashboardScreen appState={appState} onStartStudy={() => setActiveTab("room")} onOpenPenalties={() => setActiveTab("penalties")} />}
           {activeTab === "room" && <StudyRoomScreen appState={appState} sessionControls={sessionControls} />}
           {activeTab === "community" && selectedGroup && session && <CommunityScreen groupId={selectedGroup.id} userId={session.user.id} nickname={String(session.user.user_metadata.full_name ?? session.user.email?.split("@")[0] ?? "스터디러")} />}
-          {activeTab === "penalties" && <PenaltiesScreen appState={appState} />}
+          {activeTab === "penalties" && <PenaltiesScreen appState={appState} userId={session?.user.id} />}
           {activeTab === "history" && <HistoryScreen appState={appState} />}
+          {activeTab === "settings" && selectedGroup && session && (
+            <SettingsScreen
+              email={session.user.email ?? "StudyBet 계정"}
+              group={selectedGroup}
+              groups={groups}
+              isOwner={selectedGroup.owner_id === session.user.id}
+              isSessionRunning={sessionControls.isRunning}
+              onSelectGroup={(group) => { setSelectedGroup(group); setActiveTab("dashboard"); }}
+              onUpdateGroup={(group) => {
+                setSelectedGroup(group);
+                setGroups((current) => current.map((item) => item.id === group.id ? group : item));
+                setBootstrappedState((current) => ({
+                  ...current,
+                  goalMinutes: group.daily_goal_minutes,
+                  awayLimitMinutes: group.away_limit_minutes,
+                  goalPenaltyText: group.goal_penalty_text ?? current.goalPenaltyText,
+                  awayPenaltyText: group.away_penalty_text ?? current.awayPenaltyText,
+                }));
+              }}
+              onAddGroup={() => setIsChoosingGroup(true)}
+            />
+          )}
         </View>
         <BottomTabBar activeTab={activeTab} onChange={setActiveTab} />
       </View>

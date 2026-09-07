@@ -6,5 +6,5 @@ export function Screen({ children }: PropsWithChildren) {
 }
 
 const styles = StyleSheet.create({
-  content: { gap: 14 },
+  content: { gap: 16, paddingBottom: 24 },
 });

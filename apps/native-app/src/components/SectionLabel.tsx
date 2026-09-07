@@ -7,5 +7,5 @@ export function SectionLabel({ children }: PropsWithChildren) {
 }
 
 const styles = StyleSheet.create({
-  label: { color: colors.brandDark, fontSize: 12, fontWeight: "800" },
+  label: { color: colors.muted, fontSize: 12, fontWeight: "800", letterSpacing: 0.4 },
 });
